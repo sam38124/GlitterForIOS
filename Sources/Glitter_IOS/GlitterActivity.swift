@@ -15,15 +15,18 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     
     
     let encoder: JSONEncoder = JSONEncoder()
-    var webView: WKWebView!
+    open var webView: WKWebView!
     /// MyGlitterFunction
     var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission"]
     /// MapDatabase
     var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
+    /// Customer InterFace
+    var customerInterFace=[JavaScriptInterFace]()
+    open func addJavacScriptInterFace(interface:JavaScriptInterFace){
+        customerInterFace.append(interface)
+    }
     open  override func viewDidLoad() {
-        //禁止頂部下拉 和 底部上拉效果
         super.viewDidLoad()
-       
     }
     var first=true
     open override func viewDidAppear(_ animated: Bool) {
@@ -38,6 +41,9 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         }
         for b in bleFunction{
             conf.userContentController.add(self, name: b)
+        }
+        for c in customerInterFace{
+            conf.userContentController.add(self, name: c.name)
         }
         conf.preferences.javaScriptEnabled = true
         conf.selectionGranularity = WKSelectionGranularity.character
@@ -264,7 +270,13 @@ glitter.callBackList.delete(\(json!["callback"]!));
 """)
             break
         default:
-            if(bleLib(message)){}
+            if(bleLib(message)){}else{
+                for a in customerInterFace{
+                    if(a.name == message.name){
+                        a.function(message)
+                    }
+                }
+            }
             break
         }
     }
@@ -284,4 +296,9 @@ class BleAdvertise:Encodable {
     var readUTF=""
     var readBytes:[UInt8]=[UInt8]()
     var readHEX=""
+}
+
+public struct JavaScriptInterFace{
+    var name:String=""
+    var function:(_ message: WKScriptMessage)-> ()
 }
