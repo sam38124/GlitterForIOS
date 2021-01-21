@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "JzOsBleHelper",
+        "repositoryURL": "https://github.com/sam38124/JzOsBleHelper",
+        "state": {
+          "branch": null,
+          "revision": "6eb5dd9af435fddbbd239a54603c6750026e4466",
+          "version": "1.0.4"
+        }
+      },
+      {
+        "package": "JzOsSqlHelper",
+        "repositoryURL": "https://github.com/sam38124/JzOsSqlHelper",
+        "state": {
+          "branch": null,
+          "revision": "741994678de681f710a51f9c0982ad8b886efc04",
+          "version": "2.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
