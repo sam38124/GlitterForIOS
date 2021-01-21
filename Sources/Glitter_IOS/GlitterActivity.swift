@@ -300,5 +300,9 @@ class BleAdvertise:Encodable {
 
 public struct JavaScriptInterFace{
    public var name:String=""
-   public var function:(_ message: WKScriptMessage)-> ()
+    public var function:(_ message: WKScriptMessage)-> ()
+    public init(name:String,function:@escaping (_ message: WKScriptMessage)-> ()) {
+        self.name=name
+        self.function=function
+    }
 }
