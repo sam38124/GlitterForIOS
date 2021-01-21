@@ -11,7 +11,7 @@ import JzOsBleHelper
 import CoreBluetooth
 import JzOsSqlHelper
 @available(iOS 11.0, *)
-class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
+open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     
     
     let encoder: JSONEncoder = JSONEncoder()
@@ -20,13 +20,13 @@ class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission"]
     /// MapDatabase
     var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
-    override func viewDidLoad() {
+    open  override func viewDidLoad() {
         //禁止頂部下拉 和 底部上拉效果
         super.viewDidLoad()
        
     }
     var first=true
-    override func viewDidAppear(_ animated: Bool) {
+    open override func viewDidAppear(_ animated: Bool) {
         if(!first){
             return
         }
@@ -109,27 +109,27 @@ class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             return false
         }
     }
-    func onConnecting() {
+    open func onConnecting() {
         
     }
     
-    func onConnectFalse() {
+    open func onConnectFalse() {
         
     }
     
-    func onConnectSuccess() {
+    open func onConnectSuccess() {
         
     }
     
-    func rx(_ a: BleBinary) {
+    open func rx(_ a: BleBinary) {
         
     }
     
-    func tx(_ b: BleBinary) {
+    open func tx(_ b: BleBinary) {
         
     }
     
-    func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    open func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         var itmap:Dictionary<String,String> = Dictionary<String,String> ()
         itmap["name"]=device.name
         itmap["rssi"]="\(RSSI)"
@@ -154,13 +154,13 @@ class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         """)
     }
     
-    func needOpen() {
+    open func needOpen() {
     }
     
 }
 
 extension GlitterActivity: WKScriptMessageHandler {
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+    open func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch message.name {
         case "setPro":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
