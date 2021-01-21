@@ -299,6 +299,6 @@ class BleAdvertise:Encodable {
 }
 
 public struct JavaScriptInterFace{
-    var name:String=""
-    var function:(_ message: WKScriptMessage)-> ()
+   public var name:String=""
+   public var function:(_ message: WKScriptMessage)-> ()
 }
