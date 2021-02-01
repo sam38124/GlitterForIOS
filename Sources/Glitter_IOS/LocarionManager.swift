@@ -54,6 +54,7 @@ class LocarionManager {
         if(CLLocationManager.authorizationStatus()
             != .authorizedWhenInUse){return}
         let locale = Locale(identifier: "zh-tw")
+        if(self.locationManager.location == nil){return}
         let loc: CLLocation = CLLocation(latitude: (self.locationManager.location!.coordinate.latitude), longitude: (self.locationManager.location!.coordinate.longitude))
         if #available(iOS 11.0, *) {
             CLGeocoder().reverseGeocodeLocation(loc, preferredLocale: locale) { placeMark, error in
