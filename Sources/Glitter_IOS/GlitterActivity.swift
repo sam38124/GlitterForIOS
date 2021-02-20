@@ -113,6 +113,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             """)
             return true
         case "connect":
+            print("tryConnect:\(message.body)")
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
             bleUtil?.connect(deviceList[Int("\(json["name"]!)")!], 10)
             DispatchQueue.global().async {
