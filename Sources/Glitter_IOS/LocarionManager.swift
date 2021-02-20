@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreLocation
+
 import MapKit
 class LocarionManager {
     static var manager=LocarionManager()

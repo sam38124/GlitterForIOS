@@ -6,7 +6,10 @@
 //
 
 import Foundation
+
+#if !os(macOS)
 import UIKit
+#endif
 import WebKit
  
 class WKURLProtocol: URLProtocol , URLSessionDataDelegate, URLSessionTaskDelegate{

@@ -21,6 +21,7 @@ class Util_Play_Sound{
     }
     var player: AVAudioPlayer?
     func playSound(_ url:URL) {
+        
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
