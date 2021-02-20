@@ -149,7 +149,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
                 tempstring = tempstring+String(format:"%02X",i)
             }
             advermap.readHEX=tempstring
-            advermap.readUTF=String(data: data as! Data, encoding: .utf8) ?? ""
+            advermap.readUTF=(String(data: data as! Data, encoding: .utf8) ?? "").replace("\\u", "\\\\u")
             advermap.readBytes=[UInt8](data as! Data)
         }
         print("deviceName=\(device.name)encoded=\(encoded)--advermap=\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)")
