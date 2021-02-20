@@ -113,14 +113,8 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             """)
             return true
         case "connect":
-           
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            for a in deviceList{
-                if(a.name==("\(json["name"]!)")){
-                    bleUtil?.connect(a, 10)
-                    break
-                }
-            }
+            bleUtil?.connect(deviceList[Int("\(json["name"]!)")!], 10)
             DispatchQueue.global().async {
                 var time=0
                 while(!(self.bleUtil!.isPaired())&&time<json["sec"] as! Int){
@@ -166,6 +160,8 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         var itmap:Dictionary<String,String> = Dictionary<String,String> ()
         itmap["name"]=device.name
         itmap["rssi"]="\(RSSI)"
+        itmap["address"]="\(deviceList.firstIndex(of: device) ?? -1)"
+//        itmap["address"]=deviceList.index
         let encoder: JSONEncoder = JSONEncoder()
         let encoded = String(data: try!  encoder.encode(itmap) , encoding: .utf8)!
         let data=advertisementData["kCBAdvDataManufacturerData"]
@@ -179,7 +175,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             advermap.readBytes=[UInt8](data as! Data)
         }
         print("deviceName=\(device.name)encoded=\(encoded)--advermap=\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)")
-      
         webView.evaluateJavaScript("""
         glitter.bleUtil.callback.scanBack(JSON.parse('\(encoded)'),JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
         """)
