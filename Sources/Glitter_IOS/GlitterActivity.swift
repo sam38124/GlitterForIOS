@@ -72,7 +72,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     ///藍牙開發套件
     let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering"]
     var bleUtil : BleHelper? = nil
-    var deviceList=[CBPeripheral]()
     func bleLib(_ message: WKScriptMessage)->Bool{
         if(!bleFunction.contains(message.name)){return false}
         if(bleUtil==nil){
@@ -108,6 +107,14 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             return true
         case "isDiscovering":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
+            webView.evaluateJavaScript("""
+            glitter.callBackList.get(\(json["callback"]!))(\(bleUtil!.isScanning()));
+            glitter.callBackList.delete(\(json["callback"]!));
+            """)
+            return true
+        case "connect":
+           
+            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
             for a in deviceList{
                 if(a.name==("\(json["name"]!)")){
                     bleUtil?.connect(a, 10)
@@ -127,8 +134,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
                     """)
                 }
             }
-            return true
-        case "":
             return true
         default:
             return false
@@ -153,7 +158,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     open func tx(_ b: BleBinary) {
         
     }
-    
+    var deviceList=[CBPeripheral]()
     open func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if(!deviceList.contains(device)){
             deviceList.append(device)
