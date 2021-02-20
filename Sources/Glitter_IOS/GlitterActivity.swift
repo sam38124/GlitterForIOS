@@ -72,6 +72,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     ///藍牙開發套件
     let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering"]
     var bleUtil : BleHelper? = nil
+    var deviceList=[CBPeripheral]()
     func bleLib(_ message: WKScriptMessage)->Bool{
         if(!bleFunction.contains(message.name)){return false}
         if(bleUtil==nil){
@@ -107,10 +108,27 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             return true
         case "isDiscovering":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(json["callback"]!))(\(bleUtil!.isScanning()));
-            glitter.callBackList.delete(\(json["callback"]!));
-            """)
+            for a in deviceList{
+                if(a.name==("\(json["name"]!)")){
+                    bleUtil?.connect(a, 10)
+                    break
+                }
+            }
+            DispatchQueue.global().async {
+                var time=0
+                while(!(self.bleUtil!.isPaired())&&time<json["sec"] as! Int){
+                    sleep(1)
+                    time+=1
+                }
+                DispatchQueue.main.async {
+                    self.webView.evaluateJavaScript("""
+                    glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.isPaired()));
+                    glitter.callBackList.delete(\(json["callback"]!));
+                    """)
+                }
+            }
+            return true
+        case "":
             return true
         default:
             return false
@@ -137,6 +155,9 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     }
     
     open func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        if(!deviceList.contains(device)){
+            deviceList.append(device)
+        }
         var itmap:Dictionary<String,String> = Dictionary<String,String> ()
         itmap["name"]=device.name
         itmap["rssi"]="\(RSSI)"
