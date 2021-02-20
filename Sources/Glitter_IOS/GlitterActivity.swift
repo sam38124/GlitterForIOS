@@ -146,23 +146,39 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         }
     }
     open func onConnecting() {
-        
+        webView.evaluateJavaScript("""
+        glitter.bleUtil.callback.onConnecting();
+        """)
     }
     
     open func onConnectFalse() {
-        
+        webView.evaluateJavaScript("""
+        glitter.bleUtil.callback.onConnectFalse();
+        """)
     }
     
     open func onConnectSuccess() {
-        
+        webView.evaluateJavaScript("""
+        glitter.bleUtil.callback.onConnectSuccess();
+        """)
     }
     
     open func rx(_ a: BleBinary) {
-        
+        let advermap:BleAdvertise = BleAdvertise ()
+        advermap.readHEX=a.readHEX()
+        advermap.readBytes=a.readBytes()
+        webView.evaluateJavaScript("""
+        glitter.bleUtil.callback.rx(JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
+        """)
     }
     
     open func tx(_ b: BleBinary) {
-        
+        let advermap:BleAdvertise = BleAdvertise ()
+        advermap.readHEX=b.readHEX()
+        advermap.readBytes=b.readBytes()
+        webView.evaluateJavaScript("""
+        glitter.bleUtil.callback.tx(JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
+        """)
     }
     var deviceList=[CBPeripheral]()
     open func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
