@@ -70,7 +70,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     }
     
     ///藍牙開發套件
-    let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering"]
+    let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering","connect"]
     var bleUtil : BleHelper? = nil
     func bleLib(_ message: WKScriptMessage)->Bool{
         if(!bleFunction.contains(message.name)){return false}
