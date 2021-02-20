@@ -70,7 +70,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     }
     
     ///藍牙開發套件
-    let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering","connect"]
+    let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering","connect","disConnect","isConnect"]
     var bleUtil : BleHelper? = nil
     func bleLib(_ message: WKScriptMessage)->Bool{
         if(!bleFunction.contains(message.name)){return false}
@@ -115,6 +115,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         case "connect":
             print("tryConnect:\(message.body)")
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
+            bleUtil?.disconnect()
             bleUtil?.connect(deviceList[Int("\(json["name"]!)")!], 10)
             DispatchQueue.global().async {
                 var time=0
@@ -129,6 +130,16 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
                     """)
                 }
             }
+            return true
+        case "disConnect":
+            bleUtil!.disconnect()
+        return true
+        case "isConnect":
+            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
+            self.webView.evaluateJavaScript("""
+            glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.isPaired()));
+            glitter.callBackList.delete(\(json["callback"]!));
+            """)
             return true
         default:
             return false
