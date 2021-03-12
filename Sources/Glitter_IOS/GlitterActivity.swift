@@ -186,9 +186,13 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             deviceList.append(device)
         }
         var itmap:Dictionary<String,String> = Dictionary<String,String> ()
+       
         itmap["name"]=device.name
         itmap["rssi"]="\(RSSI)"
         itmap["address"]="\(deviceList.firstIndex(of: device) ?? -1)"
+        if(advertisementData["kCBAdvDataLocalName"] != nil){
+            itmap["name"]="\(advertisementData["kCBAdvDataLocalName"] ?? "")"
+        }
 //        itmap["address"]=deviceList.index
         let encoder: JSONEncoder = JSONEncoder()
         let encoded = String(data: try!  encoder.encode(itmap) , encoding: .utf8)!
