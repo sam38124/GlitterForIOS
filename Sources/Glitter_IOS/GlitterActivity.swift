@@ -28,7 +28,20 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     }
     open  override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    @objc func keyBoardWillShow(notification: NSNotification) {
+        print("keyBoardWillShow")
+       }
+
+
+    @objc func keyBoardWillHide(notification: NSNotification) {
+        print("keyBoardWillHide")
+        let superView=view.superview
+        view.removeFromSuperview()
+        superView?.addSubview(view)
+        }
     var first=true
     open override func viewDidAppear(_ animated: Bool) {
         if(!first){
@@ -119,13 +132,13 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
             bleUtil?.connect(deviceList[Int("\(json["name"]!)")!], 10)
             DispatchQueue.global().async {
                 var time=0
-                while(!(self.bleUtil!.isPaired())&&time<json["sec"] as! Int){
+                while(!(self.bleUtil!.IsConnect)&&time<json["sec"] as! Int){
                     sleep(1)
                     time+=1
                 }
                 DispatchQueue.main.async {
                     self.webView.evaluateJavaScript("""
-                    glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.isPaired()));
+                    glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.IsConnect));
                     glitter.callBackList.delete(\(json["callback"]!));
                     """)
                 }
@@ -137,7 +150,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         case "isConnect":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
             self.webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.isPaired()));
+            glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.IsConnect));
             glitter.callBackList.delete(\(json["callback"]!));
             """)
             return true
@@ -152,6 +165,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
     }
     
     open func onConnectFalse() {
+        print("onConnectFalse")
         webView.evaluateJavaScript("""
         glitter.bleUtil.callback.onConnectFalse();
         """)
