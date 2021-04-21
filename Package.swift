@@ -15,15 +15,16 @@ let package = Package(
             targets: ["Glitter_IOS"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/sam38124/JzOsSqlHelper",from: "2.0.1"),
+        .package(url: "https://github.com/sam38124/JzOsSqlHelper",from: "2.0.2"),
         .package(url: "https://github.com/sam38124/JzOsBleHelper",from: "1.0.5"),
+        .package(url: "https://github.com/sam38124/JzOsHttpExtension",from: "1.0.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Glitter_IOS",
-            dependencies: ["JzOsSqlHelper","JzOsBleHelper"]),
+            dependencies: ["JzOsSqlHelper","JzOsBleHelper","JzOsHttpExtension"]),
         .testTarget(
             name: "Glitter_IOSTests",
             dependencies: ["Glitter_IOS","JzOsSqlHelper","JzOsSqlHelper"]),
