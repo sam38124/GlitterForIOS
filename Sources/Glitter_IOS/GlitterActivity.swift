@@ -12,6 +12,12 @@ import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
 open class GlitterActivity: UIViewController,WKUIDelegate {
+    //取得單例
+    public static var instance:GlitterActivity? = nil
+    public static var getInstance:()->GlitterActivity = {
+        if(GlitterActivity.instance==nil){ GlitterActivity.instance=GlitterActivity()}
+        return GlitterActivity.instance!
+    }
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
