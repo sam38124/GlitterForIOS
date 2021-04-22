@@ -26,7 +26,7 @@ class ConversionJson: NSObject {
     } // end func JSONtoDictionary
     
     // 解析拿到的 Dictionary 轉成 JSON 格式
-    func DictionaryToJson(parameters: Dictionary<String,AnyObject>) -> String? {
+    func DictionaryToJson(parameters: Dictionary<String,Any>) -> String? {
         do {
             return  try String(data:JSONSerialization.data(withJSONObject: parameters,options: .prettyPrinted), encoding: .utf8)
         } catch let error {

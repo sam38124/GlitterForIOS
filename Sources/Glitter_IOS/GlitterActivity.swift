@@ -8,34 +8,26 @@
 import UIKit
 #endif
 import WebKit
-import JzOsBleHelper
-import CoreBluetooth
 import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
-open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
-    
-    
+open class GlitterActivity: UIViewController,WKUIDelegate {
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
-    var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission","initDatabase","reloadPage","openNewTab","initByLocalFile","checkFileExists","downloadFile","getFile"]
+    var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission","initDatabase","reloadPage","openNewTab","initByLocalFile","checkFileExists","downloadFile","getFile","addJsInterFace"]
     /// MapDatabase
     var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
-    /// Customer InterFace
-    var customerInterFace=[JavaScriptInterFace]()
-    open func addJavacScriptInterFace(interface:JavaScriptInterFace){
-        customerInterFace.append(interface)
-    }
+
     open  override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
     @objc func keyBoardWillShow(notification: NSNotification) {
         print("keyBoardWillShow")
     }
-    
     
     @objc func keyBoardWillHide(notification: NSNotification) {
         print("keyBoardWillHide")
@@ -53,12 +45,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         conf.userContentController = WKUserContentController()
         for a in array{
             conf.userContentController.add(self, name: a)
-        }
-        for b in bleFunction{
-            conf.userContentController.add(self, name: b)
-        }
-        for c in customerInterFace{
-            if(!array.contains(c.name)){ conf.userContentController.add(self, name: c.name)}
         }
         conf.preferences.javaScriptEnabled = true
         conf.selectionGranularity = WKSelectionGranularity.character
@@ -82,153 +68,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "appData")!
         webView.loadFileURL(url, allowingReadAccessTo: url)
     }
-    
-    ///藍牙開發套件
-    let bleFunction=["start","startScan","stopScan","writeHex","writeUtf","writeBytes","isOPen","gpsEnable","isDiscovering","connect","disConnect","isConnect"]
-    var bleUtil : BleHelper? = nil
-    func bleLib(_ message: WKScriptMessage)->Bool{
-        if(!bleFunction.contains(message.name)){return false}
-        if(bleUtil==nil){
-            bleUtil=BleHelper(self)
-        }
-        switch message.name {
-        case "start":
-            return true
-        case "startScan":
-            bleUtil?.startScan()
-            return true
-        case "stopScan":
-            bleUtil?.stopScan()
-            return true
-        case "writeHex":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            bleUtil?.writeHex("\(json["data"]!)", "\(json["txChannel"]!)", "\(json["rxChannel"]!)")
-            return true
-        case "writeUtf":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            bleUtil?.writeUtf("\(json["data"]!)", "\(json["txChannel"]!)", "\(json["rxChannel"]!)")
-            return true
-        case "writeBytes":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            bleUtil?.writeBytes(json["data"] as! [UInt8], "\(json["txChannel"]!)", "\(json["rxChannel"]!)")
-            return true
-        case "isOPen":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(json["callback"]!))(\(bleUtil!.isOpen()));
-            glitter.callBackList.delete(\(json["callback"]!));
-            """)
-            return true
-        case "isDiscovering":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(json["callback"]!))(\(bleUtil!.isScanning()));
-            glitter.callBackList.delete(\(json["callback"]!));
-            """)
-            return true
-        case "connect":
-            print("tryConnect:\(message.body)")
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            bleUtil?.disconnect()
-            bleUtil?.connect(deviceList[Int("\(json["name"]!)")!], 10)
-            DispatchQueue.global().async {
-                var time=0
-                while(!(self.bleUtil!.IsConnect)&&time<json["sec"] as! Int){
-                    sleep(1)
-                    time+=1
-                }
-                DispatchQueue.main.async {
-                    self.webView.evaluateJavaScript("""
-                    glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.IsConnect));
-                    glitter.callBackList.delete(\(json["callback"]!));
-                    """)
-                }
-            }
-            return true
-        case "disConnect":
-            bleUtil!.disconnect()
-            return true
-        case "isConnect":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)!
-            self.webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(json["callback"]!))(\(self.bleUtil!.IsConnect));
-            glitter.callBackList.delete(\(json["callback"]!));
-            """)
-            return true
-        default:
-            return false
-        }
-    }
-    open func onConnecting() {
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.onConnecting();
-        """)
-    }
-    
-    open func onConnectFalse() {
-        print("onConnectFalse")
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.onConnectFalse();
-        """)
-    }
-    
-    open func onConnectSuccess() {
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.onConnectSuccess();
-        """)
-    }
-    
-    open func rx(_ a: BleBinary) {
-        let advermap:BleAdvertise = BleAdvertise ()
-        advermap.readHEX=a.readHEX()
-        advermap.readBytes=a.readBytes()
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.rx(JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
-        """)
-    }
-    
-    open func tx(_ b: BleBinary) {
-        let advermap:BleAdvertise = BleAdvertise ()
-        advermap.readHEX=b.readHEX()
-        advermap.readBytes=b.readBytes()
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.tx(JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
-        """)
-    }
-    var deviceList=[CBPeripheral]()
-    open func scanBack(_ device: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        if(!deviceList.contains(device)){
-            deviceList.append(device)
-        }
-        var itmap:Dictionary<String,String> = Dictionary<String,String> ()
-        
-        itmap["name"]=device.name
-        itmap["rssi"]="\(RSSI)"
-        itmap["address"]="\(deviceList.firstIndex(of: device) ?? -1)"
-        if(advertisementData["kCBAdvDataLocalName"] != nil){
-            itmap["name"]="\(advertisementData["kCBAdvDataLocalName"] ?? "")"
-        }
-        //        itmap["address"]=deviceList.index
-        let encoder: JSONEncoder = JSONEncoder()
-        let encoded = String(data: try!  encoder.encode(itmap) , encoding: .utf8)!
-        let data=advertisementData["kCBAdvDataManufacturerData"]
-        let advermap:BleAdvertise = BleAdvertise ()
-        if(data is Data){
-            var tempstring = ""
-            for i in (data as! Data){
-                tempstring = tempstring+String(format:"%02X",i)
-            }
-            advermap.readHEX=tempstring
-            advermap.readBytes=[UInt8](data as! Data)
-        }
-        print("deviceName=\(device.name)encoded=\(encoded)--advermap=\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)")
-        webView.evaluateJavaScript("""
-        glitter.bleUtil.callback.scanBack(JSON.parse('\(encoded)'),JSON.parse('\(String(data: try!  encoder.encode(advermap) , encoding: .utf8)!)'));
-        """)
-    }
-    
-    open func needOpen() {
-    }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // A nil targetFrame means a new window (from Apple's doc)
         if (navigationAction.targetFrame == nil) {
@@ -245,17 +84,15 @@ open class GlitterActivity: UIViewController,WKUIDelegate,BleCallBack {
         // Popup window is closed, we remove it
         webView.removeFromSuperview()
     }
-    
+    /// JavaScriptInterFace
+    var javaScriptInterFace=[JavaScriptInterFace]()
+    open func addJavacScriptInterFace(interface:JavaScriptInterFace){
+    javaScriptInterFace.append(interface)
+    }
 }
 
 extension GlitterActivity: WKScriptMessageHandler {
     open func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        for a in customerInterFace{
-            if(a.name == message.name){
-                a.function(message)
-                return
-            }
-        }
         switch message.name {
         case "setPro":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
@@ -469,7 +306,8 @@ glitter.callBackList.delete(\(json!["callback"]!));
                         script="glitter.callBackList.get(\(callbackID))(\([UInt8](data!)))"
                         break
                     case "text":
-                        script="glitter.callBackList.get(\(callbackID))('\(String(data: data!, encoding: String.Encoding.utf8) as String?)')"
+                        script="glitter.callBackList.get(\(callbackID))(`\(String(data: data!, encoding: String.Encoding.utf8)!)`)"
+                        print("s19text:\(String(data: data!, encoding: String.Encoding.utf8)!)")
                         break
                     default:
                         break
@@ -485,12 +323,27 @@ glitter.callBackList.delete(\(json!["callback"]!));
                 }
             }
             break
-        default:
-            if(bleLib(message)){}else{
+        case "addJsInterFace":
+            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
+            let functionName="\(json!["functionName"]!)"
+            let callbackID="\(json!["callBackId"]!)"
+            let receiveValue=json!["data"]! as! Dictionary<String,AnyObject>
+            let cFunction=javaScriptInterFace.filter({$0.name == functionName})
+            let requestFunction = RequestFunction(receiveValue: receiveValue)
+            if(cFunction.size>0){
+                cFunction[0].function(requestFunction)
             }
+            self.webView.evaluateJavaScript("""
+            glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
+            glitter.callBackList.delete(\(callbackID));
+            """)
+            break
+        default:
+           
             break
         }
     }
+  
 }
 
 
@@ -500,19 +353,24 @@ public extension String{
         return self.replacingOccurrences(of: target, with: withString, options: NSString.CompareOptions.literal, range: nil)
     }
 }
-
+public struct JavaScriptInterFace{
+    public var name:String=""
+    public var function:(_ request: RequestFunction)-> ()
+    public init(functionName:String,function:@escaping (_ request: RequestFunction)-> ()) {
+        self.name=functionName
+        self.function=function
+    }
+}
+public class RequestFunction{
+    public let receiveValue: Dictionary<String,AnyObject>
+    public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
+    public init(receiveValue:Dictionary<String,AnyObject>){
+        self.receiveValue=receiveValue
+    }
+}
 
 class BleAdvertise:Encodable {
     var readUTF=""
     var readBytes:[UInt8]=[UInt8]()
     var readHEX=""
-}
-
-public struct JavaScriptInterFace{
-    public var name:String=""
-    public var function:(_ message: WKScriptMessage)-> ()
-    public init(name:String,function:@escaping (_ message: WKScriptMessage)-> ()) {
-        self.name=name
-        self.function=function
-    }
 }

@@ -16,7 +16,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/sam38124/JzOsSqlHelper",from: "2.0.2"),
-        .package(url: "https://github.com/sam38124/JzOsBleHelper",from: "1.0.5"),
         .package(url: "https://github.com/sam38124/JzOsHttpExtension",from: "1.0.2")
     ],
     targets: [
@@ -24,7 +23,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Glitter_IOS",
-            dependencies: ["JzOsSqlHelper","JzOsBleHelper","JzOsHttpExtension"]),
+            dependencies: ["JzOsSqlHelper","JzOsHttpExtension"]),
         .testTarget(
             name: "Glitter_IOSTests",
             dependencies: ["Glitter_IOS","JzOsSqlHelper","JzOsSqlHelper"]),
