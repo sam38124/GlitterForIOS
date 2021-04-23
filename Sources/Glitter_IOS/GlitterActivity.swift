@@ -333,16 +333,20 @@ glitter.callBackList.delete(\(json!["callback"]!));
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
             let functionName="\(json!["functionName"]!)"
             let callbackID="\(json!["callBackId"]!)"
-            let receiveValue=json!["data"]! as! Dictionary<String,AnyObject>
+            print("excuteNative:\(functionName)")
+            var receiveValue=json!["data"]! as? Dictionary<String,AnyObject>
+            if(receiveValue == nil){receiveValue=Dictionary<String,AnyObject>()}
             let cFunction=javaScriptInterFace.filter({$0.name == functionName})
-            let requestFunction = RequestFunction(receiveValue: receiveValue)
-            if(cFunction.size>0){
-                cFunction[0].function(requestFunction)
-            }
+            let requestFunction = RequestFunction(receiveValue: receiveValue!)
+            requestFunction.finish={
             self.webView.evaluateJavaScript("""
             glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
             glitter.callBackList.delete(\(callbackID));
             """)
+            }
+            if(cFunction.size>0){cFunction[0].function(requestFunction)}else{
+                requestFunction.finish()
+            }
             break
         default:
            
@@ -370,13 +374,9 @@ public struct JavaScriptInterFace{
 public class RequestFunction{
     public let receiveValue: Dictionary<String,AnyObject>
     public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
+    public var finish={}
     public init(receiveValue:Dictionary<String,AnyObject>){
         self.receiveValue=receiveValue
     }
 }
 
-class BleAdvertise:Encodable {
-    var readUTF=""
-    var readBytes:[UInt8]=[UInt8]()
-    var readHEX=""
-}
