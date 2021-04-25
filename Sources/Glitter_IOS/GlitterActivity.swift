@@ -18,6 +18,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         if(GlitterActivity.instance==nil){ GlitterActivity.instance=GlitterActivity()}
         return GlitterActivity.instance!
     }
+    public var projectRout="appData"
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
@@ -71,7 +72,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         var dateFrom = Date(timeIntervalSince1970: 0);
         // Execute
         WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom , completionHandler: {})
-        let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "appData")!
+        let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
         webView.loadFileURL(url, allowingReadAccessTo: url)
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {

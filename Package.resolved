@@ -2,12 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "JzOsBleHelper",
-        "repositoryURL": "https://github.com/sam38124/JzOsBleHelper",
+        "package": "JzOsHttpExtension",
+        "repositoryURL": "https://github.com/sam38124/JzOsHttpExtension",
         "state": {
           "branch": null,
-          "revision": "24a9497d57e7276c7294e2a30ac8dc0291061de7",
-          "version": "1.0.6"
+          "revision": "b40142dcb54831f1d15e456a99c49449e803a53e",
+          "version": "1.0.2"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/sam38124/JzOsSqlHelper",
         "state": {
           "branch": null,
-          "revision": "741994678de681f710a51f9c0982ad8b886efc04",
-          "version": "2.0.1"
+          "revision": "4979910f22ad66ac8e7499df86822bcffdc22238",
+          "version": "2.0.2"
         }
       }
     ]
