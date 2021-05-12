@@ -25,7 +25,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission","initDatabase","reloadPage","openNewTab","initByLocalFile","checkFileExists","downloadFile","getFile","addJsInterFace"]
     /// MapDatabase
     var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
-
+    
     open  override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -94,7 +94,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     /// JavaScriptInterFace
     var javaScriptInterFace=[JavaScriptInterFace]()
     open func addJavacScriptInterFace(interface:JavaScriptInterFace){
-    javaScriptInterFace.append(interface)
+        javaScriptInterFace.append(interface)
     }
 }
 
@@ -340,21 +340,23 @@ glitter.callBackList.delete(\(json!["callback"]!));
             let cFunction=javaScriptInterFace.filter({$0.name == functionName})
             let requestFunction = RequestFunction(receiveValue: receiveValue!)
             requestFunction.finish={
-            self.webView.evaluateJavaScript("""
-            glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
-            glitter.callBackList.delete(\(callbackID));
-            """)
+                DispatchQueue.main.async {
+                    self.webView.evaluateJavaScript("""
+                    glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
+                    glitter.callBackList.delete(\(callbackID));
+                    """)
+                }
             }
             if(cFunction.size>0){cFunction[0].function(requestFunction)}else{
                 requestFunction.finish()
             }
             break
         default:
-           
+            
             break
         }
     }
-  
+    
 }
 
 
