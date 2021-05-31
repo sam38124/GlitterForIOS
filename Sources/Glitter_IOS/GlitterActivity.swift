@@ -101,36 +101,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
 extension GlitterActivity: WKScriptMessageHandler {
     open func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch message.name {
-        case "setPro":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let preferences = UserDefaults.standard
-            preferences.set(json!["data"]!,forKey: json!["tag"] as! String)
-            let didSave = preferences.synchronize()
-            if !didSave {
-                print("saverror")
-            }
-            print("setPro:data-\(json!["data"]!)=tag-\(json!["tag"]!)")
-            break
-        case "getPro":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let preferences = UserDefaults.standard
-            let currentLevelKey = "\(json!["tag"]!)"
-            if preferences.object(forKey: currentLevelKey) == nil {
-                webView.evaluateJavaScript("""
-glitter.callBackList.get(\(json!["callback"]!))(undefined);
-glitter.callBackList.delete(\(json!["callback"]!));
-""")
-                print("getPro:data-null=tag-\(json!["tag"]!)")
-            } else {
-                let currentLevel = preferences.string(forKey: currentLevelKey)
-                webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))('\(currentLevel!)');
-glitter.callBackList.delete(\(json!["callback"]!));
-""")
-                print("getPro:data-\(currentLevel)=tag-\(json!["tag"]!)")
-            }
-            
-            break
+       
         case "closeApp":
             exit(0)
             break
