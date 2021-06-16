@@ -242,23 +242,33 @@ extension GlitterActivity: WKScriptMessageHandler {
                 }
                 let urlfrompath = URL(fileURLWithPath: dst)
                 print("加載路徑:\(urlfrompath)")
-                do{
-                    try file?.write(to: urlfrompath)
-                    DispatchQueue.main.async {
-                        self.webView.evaluateJavaScript("""
-                        glitter.callBackList.get(\(json!["callback"]!))(true);
-                        glitter.callBackList.delete(\(json!["callback"]!));
-                        """)
-                    }
-                }catch{
-                    print(error)
+                if(file==nil){
                     DispatchQueue.main.async {
                         self.webView.evaluateJavaScript("""
                         glitter.callBackList.get(\(json!["callback"]!))(false);
                         glitter.callBackList.delete(\(json!["callback"]!));
                         """)
                     }
+                }else{
+                    do{
+                        try file?.write(to: urlfrompath)
+                        DispatchQueue.main.async {
+                            self.webView.evaluateJavaScript("""
+                            glitter.callBackList.get(\(json!["callback"]!))(true);
+                            glitter.callBackList.delete(\(json!["callback"]!));
+                            """)
+                        }
+                    }catch{
+                        print(error)
+                        DispatchQueue.main.async {
+                            self.webView.evaluateJavaScript("""
+                            glitter.callBackList.get(\(json!["callback"]!))(false);
+                            glitter.callBackList.delete(\(json!["callback"]!));
+                            """)
+                        }
+                    }
                 }
+            
             }
             break
         case "getFile":
