@@ -53,6 +53,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         for a in array{
             conf.userContentController.add(self, name: a)
         }
+        GlitterFunction.create()
         conf.preferences.javaScriptEnabled = true
         conf.selectionGranularity = WKSelectionGranularity.character
         conf.allowsInlineMediaPlayback = true
