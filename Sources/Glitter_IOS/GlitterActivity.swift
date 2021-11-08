@@ -329,7 +329,16 @@ extension GlitterActivity: WKScriptMessageHandler {
                     """)
                 }
             }
-            if(cFunction.size>0){cFunction[0].function(requestFunction)}else{
+            requestFunction.callback={
+                DispatchQueue.main.async {
+                    self.webView.evaluateJavaScript("""
+                    glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""));
+                    """)
+                }
+            }
+            if(cFunction.size>0){
+                cFunction[0].function(requestFunction)
+            }else{
                 requestFunction.finish()
             }
             break
@@ -360,6 +369,7 @@ public class RequestFunction{
     public let receiveValue: Dictionary<String,AnyObject>
     public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
     public var finish={}
+    public var callback={}
     public init(receiveValue:Dictionary<String,AnyObject>){
         self.receiveValue=receiveValue
     }
