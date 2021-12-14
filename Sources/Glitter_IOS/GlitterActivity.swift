@@ -118,18 +118,6 @@ extension GlitterActivity: WKScriptMessageHandler {
             exit(0)
             break
       
-
-        case "checkFileExists":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let fm = FileManager.default
-            let dst =  NSHomeDirectory() + "/Documents/\(json!["fileName"]!)"
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(\(fm.fileExists(atPath: dst)));
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            break
-       
-       
         case "playSound":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
             let res:String=String("\(json!["rout"]!)".split(separator: ".")[0])
@@ -172,89 +160,6 @@ extension GlitterActivity: WKScriptMessageHandler {
                 }
             }
             break
-        case "downloadFile":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            DispatchQueue.global().async {
-                let file=HttpCore.get("\(json!["rout"]!)",TimeInterval((json!["timeOut"] as! Int)/1000))
-                let dst =  NSHomeDirectory() + "/Documents/\(json!["fileName"]!)"
-                let routArray=dst.split(separator: "/")
-                print("createRout:\(dst.sub(0..<(dst.count-routArray[routArray.count-1].count)))")
-                let fm = FileManager.default
-                if !fm.fileExists(atPath: dst) {
-                    try? fm.createDirectory(atPath: dst.sub(0..<(dst.count-routArray[routArray.count-1].count-1)), withIntermediateDirectories: true, attributes: nil)
-                    try! fm.createFile(atPath: dst, contents: nil, attributes: nil)
-                }
-                let urlfrompath = URL(fileURLWithPath: dst)
-                print("加載路徑:\(urlfrompath)")
-                if(file==nil){
-                    DispatchQueue.main.async {
-                        self.webView.evaluateJavaScript("""
-                        glitter.callBackList.get(\(json!["callback"]!))(false);
-                        glitter.callBackList.delete(\(json!["callback"]!));
-                        """)
-                    }
-                }else{
-                    do{
-                        try file?.write(to: urlfrompath)
-                        DispatchQueue.main.async {
-                            self.webView.evaluateJavaScript("""
-                            glitter.callBackList.get(\(json!["callback"]!))(true);
-                            glitter.callBackList.delete(\(json!["callback"]!));
-                            """)
-                        }
-                    }catch{
-                        print(error)
-                        DispatchQueue.main.async {
-                            self.webView.evaluateJavaScript("""
-                            glitter.callBackList.get(\(json!["callback"]!))(false);
-                            glitter.callBackList.delete(\(json!["callback"]!));
-                            """)
-                        }
-                    }
-                }
-            
-            }
-            break
-        case "getFile":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let callbackID="\(json!["callback"]!)"
-            let type="\(json!["type"]!)"
-            let dst =  NSHomeDirectory() + "/Documents/\(json!["fileName"]!)"
-            let urlfrompath = URL(fileURLWithPath: dst)
-            DispatchQueue.global().async {
-                var script="glitter.callBackList.get(\(callbackID))(undefined)"
-                do{
-                    var data: Data? = nil
-                    try data = Data(contentsOf: urlfrompath)
-                    switch(type){
-                    case "hex":
-                        var tempstring=""
-                        for i in data!{
-                            tempstring = tempstring+String(format:"%02X",i)
-                        }
-                        script="glitter.callBackList.get(\(callbackID))('\(tempstring)')"
-                        break
-                    case "bytes":
-                        script="glitter.callBackList.get(\(callbackID))(\([UInt8](data!)))"
-                        break
-                    case "text":
-                        script="glitter.callBackList.get(\(callbackID))(`\(String(data: data!, encoding: String.Encoding.utf8)!)`)"
-                        print("s19text:\(String(data: data!, encoding: String.Encoding.utf8)!)")
-                        break
-                    default:
-                        break
-                    }
-                }catch{
-                    print("error:\(error)")
-                }
-                DispatchQueue.main.async {
-                    self.webView.evaluateJavaScript("""
-                    \(script);
-                    glitter.callBackList.delete(\(callbackID));
-                    """)
-                }
-            }
-            break
         case "addJsInterFace":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
             let functionName="\(json!["functionName"]!)"
@@ -264,21 +169,20 @@ extension GlitterActivity: WKScriptMessageHandler {
             if(receiveValue == nil){receiveValue=Dictionary<String,AnyObject>()}
             let cFunction=javaScriptInterFace.filter({$0.name == functionName})
             let requestFunction = RequestFunction(receiveValue: receiveValue!)
-            requestFunction.finish={
+            requestFunction.setCallback(finishv: {
                 DispatchQueue.main.async {
                     self.webView.evaluateJavaScript("""
                     glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
                     glitter.callBackList.delete(\(callbackID));
                     """)
                 }
-            }
-            requestFunction.callback={
+            }, callbackv: {
                 DispatchQueue.main.async {
                     self.webView.evaluateJavaScript("""
                     glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""));
                     """)
                 }
-            }
+            })
             if(cFunction.size>0){
                 cFunction[0].function(requestFunction)
             }else{
@@ -311,10 +215,20 @@ public struct JavaScriptInterFace{
 public class RequestFunction{
     public let receiveValue: Dictionary<String,AnyObject>
     public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
-    public var finish={}
-    public var callback={}
+    private var finishv={}
+    private var callbackv={}
     public init(receiveValue:Dictionary<String,AnyObject>){
         self.receiveValue=receiveValue
+    }
+    public func finish(){
+        finishv()
+    }
+    public func callback(){
+        callbackv()
+    }
+    public func setCallback(finishv:@escaping ()->(),callbackv:@escaping ()->()){
+        self.callbackv=callbackv
+        self.finishv=finishv
     }
 }
 

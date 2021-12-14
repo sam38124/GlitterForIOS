@@ -40,5 +40,7 @@ class GlitterFunction {
         }))
         //資料庫接口
         Database.create()
+        //檔案夾接口
+        FileManagerInterFace.create()
     }
 }
