@@ -38,5 +38,7 @@ class GlitterFunction {
                 item.finish()
             }
         }))
+        //資料庫接口
+        Database.create()
     }
 }

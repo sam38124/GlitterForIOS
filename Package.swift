@@ -26,6 +26,6 @@ let package = Package(
             dependencies: ["JzOsSqlHelper","JzOsHttpExtension"]),
         .testTarget(
             name: "Glitter_IOSTests",
-            dependencies: ["Glitter_IOS","JzOsSqlHelper","JzOsSqlHelper"]),
+            dependencies: ["Glitter_IOS","JzOsSqlHelper"]),
     ]
 )

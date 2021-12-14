@@ -23,9 +23,17 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     open var webView: WKWebView!
     /// MyGlitterFunction
     var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission","initDatabase","reloadPage","openNewTab","initByLocalFile","checkFileExists","downloadFile","getFile","addJsInterFace"]
-    /// MapDatabase
-    var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
     
+    ///
+    var parameters = "?page=home"
+    open func setParameters(_ par:String){
+        self.parameters = par
+        if(!first){
+            let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
+            let url2 = URL(string: parameters, relativeTo: url)!
+            webView.load(URLRequest(url: url2))
+        }
+    }
     open  override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -47,7 +55,6 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         if(!first){
             return
         }
-        first=false
         let conf = WKWebViewConfiguration()
         conf.userContentController = WKUserContentController()
         for a in array{
@@ -74,7 +81,11 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         // Execute
         WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom , completionHandler: {})
         let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
-        webView.loadFileURL(url, allowingReadAccessTo: url)
+//        http://192.168.50.163/Petstagram/home.html?page=Page_Show_Article_Type_1&artID=20
+//        url.absoluteString=""
+        let url2 = URL(string: parameters, relativeTo: url)!
+        webView.load(URLRequest(url: url2))
+        first=false
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // A nil targetFrame means a new window (from Apple's doc)
@@ -106,46 +117,8 @@ extension GlitterActivity: WKScriptMessageHandler {
         case "closeApp":
             exit(0)
             break
-        case "exSql":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let dataBase=json!["dataBase"] as! String
-            if(dataBaseMap[dataBase] == nil){
-                dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
-                dataBaseMap[dataBase]?.autoCreat()
-            }
-            dataBaseMap[dataBase]?.exSql(json!["text"] as! String)
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(true);
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            
-            break
-        case "initByFile":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let dataBase=json!["dataBase"] as! String
-            print("dataBaseRout"+dataBase)
-            dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
-            dataBaseMap[dataBase]?.autoCreat()
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(\(dataBaseMap[dataBase]!.initByUrl(Bundle.main.url(forResource: "\(json!["rout"]!)".replace(".db", ""), withExtension: "db", subdirectory: "appData")!.absoluteString)));
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            break
-        case "initByLocalFile":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let dataBase=json!["dataBase"] as! String
-            print("dataBaseRout"+dataBase)
-            dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
-            dataBaseMap[dataBase]?.autoCreat()
-            let fm = FileManager.default
-            let dst = NSHomeDirectory() + "/Documents/\(json!["rout"]!)"
-            if(!fm.fileExists(atPath: dst)){fm.createFile(atPath: dst, contents: nil, attributes: nil)}
-            let urlfrompath = URL(fileURLWithPath: dst)
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(\(dataBaseMap[dataBase]!.initByUrl(urlfrompath.absoluteString)));
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            break
+      
+
         case "checkFileExists":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
             let fm = FileManager.default
@@ -155,38 +128,8 @@ extension GlitterActivity: WKScriptMessageHandler {
    glitter.callBackList.delete(\(json!["callback"]!));
 """)
             break
-        case "initDatabase":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let dataBase=json!["dataBase"] as! String
-            dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
-            dataBaseMap[dataBase]?.autoCreat()
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(true);
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            break
-            
-        case "query":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            var dataList:Array<Dictionary<String,String>> = Array()
-            let dataBase=json!["dataBase"] as! String
-            dataBaseMap[dataBase]?.query(json!["text"] as! String, {a in
-                var itmap:Dictionary<String,String> = Dictionary<String,String> ()
-                for b in 0..<a.getColumnsCount(){
-                    itmap[a.getColumnsName(b)]=a.getString(b)
-                }
-                dataList.append(itmap)
-            }, {})
-            let encoder: JSONEncoder = JSONEncoder()
-            let encoded = String(data: try!  encoder.encode(dataList)
-                                 , encoding: .utf8)
-            print("rjson:\(encoded!)")
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))(\(encoded!));
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            
-            break
+       
+       
         case "playSound":
             let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
             let res:String=String("\(json!["rout"]!)".split(separator: ".")[0])
