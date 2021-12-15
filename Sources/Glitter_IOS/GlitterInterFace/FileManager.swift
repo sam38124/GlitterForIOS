@@ -14,21 +14,21 @@ import JzOsHttpExtension
 public class FileManagerInterFace{
     public static func create(){
         let glitterAct=GlitterActivity.getInstance()
-        //判斷檔案是否存在["fileName"]
+        //判斷檔案是否存在["route"]
         glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_checkFileExists", function: {
             request in
-            let fileName=request.receiveValue["fileName"] as! String
+            let fileName=request.receiveValue["route"] as! String
             let fm = FileManager.default
             let dst =  NSHomeDirectory() + "/Documents/\(fileName)"
             request.responseValue["result"]=fm.fileExists(atPath: dst)
             request.finish()
         }))
-        //下載檔案["rout","timeOut","fileName"]
+        //下載檔案["url","timeOut","route"]
         glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_downloadFile", function: {
             request in
-            let rout=request.receiveValue["rout"] as! String
+            let rout=request.receiveValue["url"] as! String
             let timeOut=request.receiveValue["timeOut"] as! Double
-            let fileName=request.receiveValue["fileName"] as! String
+            let fileName=request.receiveValue["route"] as! String
             let file=HttpCore.get("\(rout)",TimeInterval((timeOut)/1000))
             let dst =  NSHomeDirectory() + "/Documents/\(fileName)"
             let routArray=dst.split(separator: "/")
@@ -52,10 +52,10 @@ public class FileManagerInterFace{
             }
             request.finish()
         }))
-        //取得檔案
+        //取得檔案["route","type"]
         glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_getFile", function: {
             request in
-            let rout=request.receiveValue["rout"] as! String
+            let rout=request.receiveValue["route"] as! String
             let type=request.receiveValue["type"] as! String
             let dst =  NSHomeDirectory() + "/Documents/\(rout)"
             let urlfrompath = URL(fileURLWithPath: dst)
