@@ -62,6 +62,7 @@ public class FileManagerInterFace{
             do{
                 var data: Data? = nil
                 try data = Data(contentsOf: urlfrompath)
+                request.responseValue["result"]=true
                 switch(type){
                 case "hex":
                     var tempstring=""
@@ -77,9 +78,11 @@ public class FileManagerInterFace{
                     request.responseValue["data"]=String(data: data!, encoding: String.Encoding.utf8)!
                     break
                 default:
+                    request.responseValue["data"]=String(data: data!, encoding: String.Encoding.utf8)!
                     break
                 }
             }catch{
+                request.responseValue["result"]=false
                 print("error:\(error)")
             }
             request.finish()
