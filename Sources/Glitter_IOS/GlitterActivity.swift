@@ -22,8 +22,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
-    var array=["setPro","getPro","closeApp","exSql","initByFile","query","playSound","getGPS","requestGPSPermission","initDatabase","reloadPage","openNewTab","initByLocalFile","checkFileExists","downloadFile","getFile","addJsInterFace"]
-    
+    var array=["closeApp","reloadPage","addJsInterFace"]
     ///
     var parameters = "?page=home"
     open func setParameters(_ par:String){
@@ -36,6 +35,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     }
     open  override func viewDidLoad() {
         super.viewDidLoad()
+       
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -191,11 +191,11 @@ public struct JavaScriptInterFace{
     }
 }
 public class RequestFunction{
-    public let receiveValue: Dictionary<String,AnyObject>
+    public let receiveValue: Dictionary<String,Any>
     public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
     private var finishv={}
     private var callbackv={}
-    public init(receiveValue:Dictionary<String,AnyObject>){
+    public init(receiveValue:Dictionary<String,Any>){
         self.receiveValue=receiveValue
     }
     public func finish(){

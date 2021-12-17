@@ -6,7 +6,7 @@
 //
 
 import Foundation
-class GlitterFunction {
+public class GlitterFunction {
     public static func create(){
         let glitterAct=GlitterActivity.getInstance()
         //取得紀錄
@@ -46,5 +46,23 @@ class GlitterFunction {
         SoundManager.create()
         //定位請求
         LocarionManager.create()
+    }
+    public static func run(functionName: String,obj:Dictionary<String,Any>,finish: @escaping(_ data:Dictionary<String,Any>) -> ()){
+        let requestFunction = RequestFunction(receiveValue: obj)
+        requestFunction.setCallback(finishv: {
+            DispatchQueue.main.async {
+                finish(requestFunction.responseValue)
+            }
+        }, callbackv: {
+            DispatchQueue.main.async {
+                finish(requestFunction.responseValue)
+            }
+        })
+        let function=GlitterActivity.getInstance().javaScriptInterFace.filter{ $0.name == functionName }
+        if(function.size==1){
+            function[0].function(requestFunction)
+        }else{
+            finish(["data":"Function not define"])
+        }
     }
 }
