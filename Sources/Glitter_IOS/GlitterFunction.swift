@@ -44,5 +44,7 @@ class GlitterFunction {
         FileManagerInterFace.create()
         //聲音管理工具
         SoundManager.create()
+        //定位請求
+        LocarionManager.create()
     }
 }
