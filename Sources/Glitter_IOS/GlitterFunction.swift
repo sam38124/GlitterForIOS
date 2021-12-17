@@ -42,5 +42,7 @@ class GlitterFunction {
         Database.create()
         //檔案夾接口
         FileManagerInterFace.create()
+        //聲音管理工具
+        SoundManager.create()
     }
 }
