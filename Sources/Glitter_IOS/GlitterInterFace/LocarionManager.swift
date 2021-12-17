@@ -8,15 +8,17 @@
 
 import Foundation
 import CoreLocation
-
+import Glitter_IOS
 import MapKit
+
 class LocarionManager {
     static var manager=LocarionManager()
     private let locationManager = CLLocationManager()
+    var haveUpdate=false
     //判斷是否有定位
-    func haveLocation(_ control:GlitterActivity){
+    func haveLocation( control: @escaping ( _ a:String) -> Void){
         guard CLLocationManager.locationServicesEnabled() else{
-            control.webView.evaluateJavaScript("glitter.gpsUtil.callback.notOpen()")
+            control("notOpen")
             return
         }
            // 首次使用 向使用者詢問定位自身位置權限
@@ -24,11 +26,14 @@ class LocarionManager {
             == .notDetermined {
             // 取得定位服務授權
             locationManager.requestWhenInUseAuthorization()
-            locationManager.startUpdatingLocation()
+            if(!haveUpdate){
+                haveUpdate=true
+                locationManager.startUpdatingLocation()
+            }
             DispatchQueue.global().async {
                 while( CLLocationManager.authorizationStatus() == .notDetermined){sleep(1)}
                 DispatchQueue.main.async {
-                    LocarionManager.manager.haveLocation(control)
+                    LocarionManager.manager.haveLocation(control: control)
                 }
             }
         }
@@ -36,15 +41,18 @@ class LocarionManager {
         else if CLLocationManager.authorizationStatus()
             == .denied {
             // 提示可至[設定]中開啟權限
-            control.webView.evaluateJavaScript("glitter.gpsUtil.callback.denied()")
+            control("denied")
         }
             // 使用者已經同意定位自身位置權限
         else if CLLocationManager.authorizationStatus()
             == .authorizedWhenInUse {
             // 開始定位自身位置
-            locationManager.startUpdatingLocation()
+            if(!haveUpdate){
+                haveUpdate=true
+                locationManager.startUpdatingLocation()
+            }
             store()
-            control.webView.evaluateJavaScript("glitter.gpsUtil.callback.grant()")
+            control("grant")
         }
         
     }
@@ -77,10 +85,39 @@ class LocarionManager {
     @objc func timerAction() {
         store()
     }
-//    func  {
-//        <#function body#>
-//    }
-    
+    public static func create(){
+        let glitterAct=GlitterActivity.getInstance()
+        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "GpsManager_Status", function: {
+                   request in
+            LocarionManager.manager.haveLocation(control: {
+                       a in
+                       request.responseValue["result"]=a
+                       request.finish()
+                   })
+               }))
+               
+               glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "GpsManager_getGps", function: {
+                   request in
+                LocarionManager.manager.haveLocation(control: {
+                       a in
+                       if(a == "grant"){
+                           var map:Dictionary<String,String> = Dictionary<String,String>()
+                           map["latitude"]=LocarionManager.manager.lastKnownLocation.lat
+                           map["longitude"]=LocarionManager.manager.lastKnownLocation.lon
+                           map["address"]=LocarionManager.manager.lastKnownLocation.address
+                           print("地址:latitude:\(LocarionManager.manager.lastKnownLocation.lat)-\(LocarionManager.manager.lastKnownLocation.address)")
+                           request.responseValue["data"]=map
+                           request.responseValue["result"]=true
+                           request.finish()
+                       }else{
+                           request.responseValue["result"]=a
+                           request.finish()
+                       }
+                   })
+                 
+               }))
+
+    }
 }
 
 struct LocationData {

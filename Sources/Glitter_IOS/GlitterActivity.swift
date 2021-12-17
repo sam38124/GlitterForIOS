@@ -118,29 +118,7 @@ extension GlitterActivity: WKScriptMessageHandler {
             exit(0)
             break
       
-        case "playSound":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            let res:String=String("\(json!["rout"]!)".split(separator: ".")[0])
-            let ext:String=String("\(json!["rout"]!)".split(separator: ".")[1])
-            let rout=Bundle.main.url(forResource: res, withExtension: ext, subdirectory: "appData")!
-            Util_Play_Sound.getInstance.playSound(rout)
-            break
-        case "requestGPSPermission":
-            LocarionManager.manager.haveLocation(self)
-            break
-        case "getGPS":
-            let json=ConversionJson.shared.JsonToDictionary(data:  "\(message.body)".data(using: .utf8)!)
-            var map:Dictionary<String,String> = Dictionary<String,String>()
-            map["latitude"]=LocarionManager.manager.lastKnownLocation.lat
-            map["longitude"]=LocarionManager.manager.lastKnownLocation.lon
-            map["address"]=LocarionManager.manager.lastKnownLocation.address
-            let encoded = String(data: try!  encoder.encode(map)
-                                 , encoding: .utf8)?.replace("\\\"", "\\\\\"")
-            webView.evaluateJavaScript("""
-   glitter.callBackList.get(\(json!["callback"]!))('\(encoded!)');
-   glitter.callBackList.delete(\(json!["callback"]!));
-""")
-            break
+       
         case "reloadPage":
             let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "appData")!
             webView.loadFileURL(url, allowingReadAccessTo: url)
