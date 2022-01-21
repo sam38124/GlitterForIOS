@@ -87,35 +87,35 @@ class LocarionManager {
     }
     public static func create(){
         let glitterAct=GlitterActivity.getInstance()
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "GpsManager_Status", function: {
+        JavaScriptInterFace(functionName: "GpsManager_Status", function: {
                    request in
             LocarionManager.manager.haveLocation(control: {
                        a in
                        request.responseValue["result"]=a
                        request.finish()
                    })
-               }))
+               })
                
-               glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "GpsManager_getGps", function: {
-                   request in
-                LocarionManager.manager.haveLocation(control: {
-                       a in
-                       if(a == "grant"){
-                           var map:Dictionary<String,String> = Dictionary<String,String>()
-                           map["latitude"]=LocarionManager.manager.lastKnownLocation.lat
-                           map["longitude"]=LocarionManager.manager.lastKnownLocation.lon
-                           map["address"]=LocarionManager.manager.lastKnownLocation.address
-                           print("地址:latitude:\(LocarionManager.manager.lastKnownLocation.lat)-\(LocarionManager.manager.lastKnownLocation.address)")
-                           request.responseValue["data"]=map
-                           request.responseValue["result"]=true
-                           request.finish()
-                       }else{
-                           request.responseValue["result"]=a
-                           request.finish()
-                       }
-                   })
-                 
-               }))
+        JavaScriptInterFace(functionName: "GpsManager_getGps", function: {
+            request in
+         LocarionManager.manager.haveLocation(control: {
+                a in
+                if(a == "grant"){
+                    var map:Dictionary<String,String> = Dictionary<String,String>()
+                    map["latitude"]=LocarionManager.manager.lastKnownLocation.lat
+                    map["longitude"]=LocarionManager.manager.lastKnownLocation.lon
+                    map["address"]=LocarionManager.manager.lastKnownLocation.address
+                    print("地址:latitude:\(LocarionManager.manager.lastKnownLocation.lat)-\(LocarionManager.manager.lastKnownLocation.address)")
+                    request.responseValue["data"]=map
+                    request.responseValue["result"]=true
+                    request.finish()
+                }else{
+                    request.responseValue["result"]=a
+                    request.finish()
+                }
+            })
+          
+        })
 
     }
 }

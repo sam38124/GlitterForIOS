@@ -188,6 +188,9 @@ public struct JavaScriptInterFace{
     public init(functionName:String,function:@escaping (_ request: RequestFunction)-> ()) {
         self.name=functionName
         self.function=function
+        let glit=GlitterActivity.getInstance()
+        glit.javaScriptInterFace=glit.javaScriptInterFace.filter({$0.name != functionName})
+        glit.addJavacScriptInterFace(interface: self)
     }
 }
 public class RequestFunction{

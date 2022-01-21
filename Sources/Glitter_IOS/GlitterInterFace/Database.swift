@@ -13,7 +13,7 @@ public class Database {
         let glitterAct=GlitterActivity.getInstance()
         var dataBaseMap:Dictionary<String,SqlHelper> = Dictionary<String,SqlHelper>()
         //執行資料庫
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "DataBase_exSql", function: {
+        JavaScriptInterFace(functionName: "DataBase_exSql", function: {
             request in
             let dataBase=request.receiveValue["name"] as! String
             let sql=request.receiveValue["string"] as! String
@@ -24,9 +24,9 @@ public class Database {
             dataBaseMap[dataBase]?.exSql(sql)
             request.responseValue["result"]=true
             request.finish()
-        }))
+        })
         //查詢資料庫
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "DataBase_Query", function: {
+        JavaScriptInterFace(functionName: "DataBase_Query", function: {
             request in
             let dataBase=request.receiveValue["name"] as! String
             let sql=request.receiveValue["string"] as! String
@@ -45,9 +45,9 @@ public class Database {
             request.responseValue["data"]=dataList
             request.responseValue["result"]=true
             request.finish()
-        }))
+        })
         //從Assets中預載資料庫
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "DataBase_InitByAssets", function: {
+        JavaScriptInterFace(functionName: "DataBase_InitByAssets", function: {
             request in
             let dataBase=request.receiveValue["name"] as! String
             let rout=request.receiveValue["rout"] as! String
@@ -57,22 +57,22 @@ public class Database {
             }
             request.responseValue["result"]=dataBaseMap[dataBase]!.initByUrl(Bundle.main.url(forResource: "\(rout)".replace(".db", ""), withExtension: "db", subdirectory: "appData")!.absoluteString)
             request.finish()
-        }))
+        })
         //從專案檔案夾中預載資料庫
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "DataBase_InitByLocal", function: {
-            request in
-            let dataBase=request.receiveValue["name"] as! String
-            let rout=request.receiveValue["rout"] as! String
-            if(dataBaseMap[dataBase] == nil){
-                dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
-                dataBaseMap[dataBase]?.autoCreat()
-            }
-            let fm = FileManager.default
-            let dst = NSHomeDirectory() + "/Documents/\(rout)"
-            if(!fm.fileExists(atPath: dst)){fm.createFile(atPath: dst, contents: nil, attributes: nil)}
-            let urlfrompath = URL(fileURLWithPath: dst)
-            request.responseValue["result"]=dataBaseMap[dataBase]!.initByUrl(urlfrompath.absoluteString)
-            request.finish()
-        }))
+        JavaScriptInterFace(functionName: "DataBase_InitByLocal", function: {
+           request in
+           let dataBase=request.receiveValue["name"] as! String
+           let rout=request.receiveValue["rout"] as! String
+           if(dataBaseMap[dataBase] == nil){
+               dataBaseMap[dataBase] = SqlHelper("\(dataBase).db")
+               dataBaseMap[dataBase]?.autoCreat()
+           }
+           let fm = FileManager.default
+           let dst = NSHomeDirectory() + "/Documents/\(rout)"
+           if(!fm.fileExists(atPath: dst)){fm.createFile(atPath: dst, contents: nil, attributes: nil)}
+           let urlfrompath = URL(fileURLWithPath: dst)
+           request.responseValue["result"]=dataBaseMap[dataBase]!.initByUrl(urlfrompath.absoluteString)
+           request.finish()
+       })
     }
 }

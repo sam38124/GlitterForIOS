@@ -15,16 +15,16 @@ public class FileManagerInterFace{
     public static func create(){
         let glitterAct=GlitterActivity.getInstance()
         //判斷檔案是否存在["route"]
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_CheckFileExists", function: {
+        JavaScriptInterFace(functionName: "FileManager_CheckFileExists", function: {
             request in
             let fileName=request.receiveValue["route"] as! String
             let fm = FileManager.default
             let dst =  NSHomeDirectory() + "/Documents/\(fileName)"
             request.responseValue["result"]=fm.fileExists(atPath: dst)
             request.finish()
-        }))
+        })
         //下載檔案["url","timeOut","route"]
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_DownloadFile", function: {
+        JavaScriptInterFace(functionName: "FileManager_DownloadFile", function: {
             request in
             let rout=request.receiveValue["url"] as! String
             let timeOut=request.receiveValue["timeOut"] as! Double
@@ -51,9 +51,9 @@ public class FileManagerInterFace{
                 }
             }
             request.finish()
-        }))
+        })
         //取得檔案["route","type"]
-        glitterAct.addJavacScriptInterFace(interface: JavaScriptInterFace(functionName: "FileManager_GetFile", function: {
+        JavaScriptInterFace(functionName: "FileManager_GetFile", function: {
             request in
             let rout=request.receiveValue["route"] as! String
             let type=request.receiveValue["type"] as! String
@@ -86,6 +86,6 @@ public class FileManagerInterFace{
                 print("error:\(error)")
             }
             request.finish()
-        }))
+        })
     }
 }
