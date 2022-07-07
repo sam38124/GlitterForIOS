@@ -18,7 +18,8 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         if(GlitterActivity.instance==nil){ GlitterActivity.instance=GlitterActivity()}
         return GlitterActivity.instance!
     }
-    public var projectRout="appData"
+    public var gliiterUrl:URL? = nil
+    var projectRout="appData"
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
@@ -79,12 +80,15 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         // Date from
         var dateFrom = Date(timeIntervalSince1970: 0);
         // Execute
-        WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom , completionHandler: {})
-        let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
-//        http://192.168.50.163/Petstagram/home.html?page=Page_Show_Article_Type_1&artID=20
-//        url.absoluteString=""
-        let url2 = URL(string: parameters, relativeTo: url)!
-        webView.load(URLRequest(url: url2))
+        if(gliiterUrl != nil){
+            webView.load(URLRequest(url: gliiterUrl!))
+        }else{
+            WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom , completionHandler: {})
+            let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
+            let url2 = URL(string: parameters, relativeTo: url)!
+            webView.load(URLRequest(url: url2))
+        }
+       
         first=false
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {

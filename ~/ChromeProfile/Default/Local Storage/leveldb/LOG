@@ -1,0 +1,5 @@
+2022/01/23-14:52:07.792 3003 Creating DB /Users/jianzhi.wang/Desktop/Swift Package/Glitter_IOS/~/ChromeProfile/Default/Local Storage/leveldb since it was missing.
+2022/01/23-14:52:07.880 3003 Reusing MANIFEST /Users/jianzhi.wang/Desktop/Swift Package/Glitter_IOS/~/ChromeProfile/Default/Local Storage/leveldb/MANIFEST-000001
+2022/01/24-10:17:08.049 452f Level-0 table #5: started
+2022/01/24-10:17:08.078 452f Level-0 table #5: 8620 bytes OK
+2022/01/24-10:17:08.126 452f Delete type=0 #3

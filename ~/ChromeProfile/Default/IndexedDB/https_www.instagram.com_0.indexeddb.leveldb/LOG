@@ -1,0 +1,17 @@
+2022/01/23-14:52:15.874 f003 Creating DB /Users/jianzhi.wang/Desktop/Swift Package/Glitter_IOS/~/ChromeProfile/Default/IndexedDB/https_www.instagram.com_0.indexeddb.leveldb since it was missing.
+2022/01/23-14:52:15.948 f003 Reusing MANIFEST /Users/jianzhi.wang/Desktop/Swift Package/Glitter_IOS/~/ChromeProfile/Default/IndexedDB/https_www.instagram.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/01/23-14:55:33.307 8a03 Level-0 table #5: started
+2022/01/23-14:55:33.461 8a03 Level-0 table #5: 1284428 bytes OK
+2022/01/23-14:55:33.488 8a03 Delete type=0 #3
+2022/01/24-11:04:21.563 1610f Level-0 table #7: started
+2022/01/24-11:04:21.614 1610f Level-0 table #7: 912213 bytes OK
+2022/01/24-11:04:21.663 1610f Delete type=0 #4
+2022/01/24-11:04:21.669 1610f Manual compaction at level-0 from (begin) .. (end); will stop at (end)
+2022/01/24-11:04:21.670 1610f Manual compaction at level-1 from (begin) .. (end); will stop at '\x00\x01\x01\x03\x01\x0a\x00p\x00o\x00s\x00t\x00s\x00.\x00b\x00y\x00I\x00d' @ 2467 : 0
+2022/01/24-11:04:21.670 1610f Compacting 1@1 + 1@2 files
+2022/01/24-11:04:21.707 1610f Generated table #8@1: 46 keys, 36040 bytes
+2022/01/24-11:04:21.707 1610f Compacted 1@1 + 1@2 files => 36040 bytes
+2022/01/24-11:04:21.750 1610f compacted to: files[ 0 0 1 0 0 0 0 ]
+2022/01/24-11:04:21.751 1610f Delete type=2 #7
+2022/01/24-11:04:21.752 1610f Delete type=2 #5
+2022/01/24-11:04:21.753 1610f Manual compaction at level-1 from '\x00\x01\x01\x03\x01\x0a\x00p\x00o\x00s\x00t\x00s\x00.\x00b\x00y\x00I\x00d' @ 2467 : 0 .. (end); will stop at (end)
