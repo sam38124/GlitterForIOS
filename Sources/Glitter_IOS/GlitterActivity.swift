@@ -19,7 +19,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         return GlitterActivity.instance!
     }
     public var gliiterUrl:URL? = nil
-    var projectRout="appData"
+    public var projectRout="appData"
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
