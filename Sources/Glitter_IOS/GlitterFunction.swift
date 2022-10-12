@@ -8,70 +8,56 @@
 import Foundation
 import UIKit
 public class GlitterFunction {
-    public static func create(){
-        let glitterAct=GlitterActivity.getInstance()
-        //取得紀錄
-        JavaScriptInterFace(functionName: "getPro", function: {
-            item in
-            DispatchQueue.main.async {
-            let preferences = UserDefaults.standard
-            let data=item.receiveValue["name"]
-            let currentLevel = preferences.string(forKey: "\(data!)")
-            item.responseValue["data"]=currentLevel
-            print("getPro:\(data!)-\(currentLevel)")
-            item.finish()
-            }
-        })
-        //存紀錄
-        JavaScriptInterFace(functionName: "setPro", function: {
-            item in
-            DispatchQueue.main.async {
+    public static func create(glitterAct:GlitterActivity){
+        for a in [
+            //取得紀錄
+            JavaScriptInterFace(functionName: "getPro", function: {
+                item in
+                DispatchQueue.main.async {
                 let preferences = UserDefaults.standard
-                let name=item.receiveValue["name"]
-                let data=item.receiveValue["data"]
-                preferences.set("\(data!)",forKey:"\(name!)" )
-                let didSave = preferences.synchronize()
-                if !didSave {
-                    print("saverror")
-                }
-                print("setPro:\(didSave)")
-                item.responseValue["result"]=true
+                let data=item.receiveValue["name"]
+                let currentLevel = preferences.string(forKey: "\(data!)")
+                item.responseValue["data"]=currentLevel
+                print("getPro:\(data!)-\(currentLevel)")
                 item.finish()
-            }
-        })
-        //取得系統版本資訊
-        JavaScriptInterFace(functionName: "getSystemVersion", function: {
-                    request in
-                    request.responseValue["version"]=UIDevice.current.systemVersion
-                    request.responseValue["model"]=UIDevice.modelName
-                    request.responseValue["make"]="Apple"
-                    request.finish()
-                })
-        Database.create()
-        //檔案夾接口
-        FileManagerInterFace.create()
-        //聲音管理工具
-        SoundManager.create()
-        //定位請求
-        LocarionManager.create()
-    }
-    public static func run(functionName: String,obj:Dictionary<String,Any>,finish: @escaping(_ data:Dictionary<String,Any>) -> ()){
-        let requestFunction = RequestFunction(receiveValue: obj)
-        requestFunction.setCallback(finishv: {
-            DispatchQueue.main.async {
-                finish(requestFunction.responseValue)
-            }
-        }, callbackv: {
-            DispatchQueue.main.async {
-                finish(requestFunction.responseValue)
-            }
-        })
-        let function=GlitterActivity.getInstance().javaScriptInterFace.filter{ $0.name == functionName }
-        if(function.size==1){
-            function[0].function(requestFunction)
-        }else{
-            finish(["data":"Function not define"])
+                }
+            }),
+            //存紀錄
+            JavaScriptInterFace(functionName: "setPro", function: {
+                item in
+                DispatchQueue.main.async {
+                    let preferences = UserDefaults.standard
+                    let name=item.receiveValue["name"]
+                    let data=item.receiveValue["data"]
+                    preferences.set("\(data!)",forKey:"\(name!)" )
+                    let didSave = preferences.synchronize()
+                    if !didSave {
+                        print("saverror")
+                    }
+                    print("setPro:\(didSave)")
+                    item.responseValue["result"]=true
+                    item.finish()
+                }
+            }),
+            //取得系統版本資訊
+            JavaScriptInterFace(functionName: "getSystemVersion", function: {
+                        request in
+                        request.responseValue["version"]=UIDevice.current.systemVersion
+                        request.responseValue["model"]=UIDevice.modelName
+                        request.responseValue["make"]="Apple"
+                        request.finish()
+                    })
+        ]{
+            glitterAct.addJavacScriptInterFace(interface: a)
         }
+        
+        Database.create(glitterAct: glitterAct)
+        //檔案夾接口
+        FileManagerInterFace.create(glitterAct: glitterAct)
+        //聲音管理工具
+        SoundManager.create(glitterAct: glitterAct)
+        //定位請求
+        LocationManager.create(glitterAct: glitterAct)
     }
 }
 public extension UIDevice {

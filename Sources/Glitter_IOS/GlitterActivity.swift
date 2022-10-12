@@ -12,25 +12,27 @@ import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
 open class GlitterActivity: UIViewController,WKUIDelegate {
-    //取得單例
-    public static var instance:GlitterActivity? = nil
-    public static var getInstance:()->GlitterActivity = {
-        if(GlitterActivity.instance==nil){ GlitterActivity.instance=GlitterActivity()}
-        return GlitterActivity.instance!
-    }
-    public var gliiterUrl:URL? = nil
-    public var projectRout="appData"
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
     var array=["closeApp","reloadPage","addJsInterFace"]
-    ///
-    var parameters = "?page=home"
+    
+    var glitterConfig:GlitterConfig
+    
+    init(glitterConfig:GlitterConfig = GlitterConfig()) {
+        self.glitterConfig=glitterConfig
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     open func setParameters(_ par:String){
-        self.parameters = par
+        glitterConfig.parameters=par
         if(!first){
-            let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
-            let url2 = URL(string: parameters, relativeTo: url)!
+            let url = glitterConfig.projectRout
+            let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
             webView.load(URLRequest(url: url2))
         }
     }
@@ -61,7 +63,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         for a in array{
             conf.userContentController.add(self, name: a)
         }
-        GlitterFunction.create()
+        GlitterFunction.create(glitterAct: self)
         conf.preferences.javaScriptEnabled = true
         conf.selectionGranularity = WKSelectionGranularity.character
         conf.allowsInlineMediaPlayback = true
@@ -80,15 +82,9 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         // Date from
         var dateFrom = Date(timeIntervalSince1970: 0);
         // Execute
-        if(gliiterUrl != nil){
-            webView.load(URLRequest(url: gliiterUrl!))
-        }else{
-            WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom , completionHandler: {})
-            let url = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: projectRout)!
-            let url2 = URL(string: parameters, relativeTo: url)!
-            webView.load(URLRequest(url: url2))
-        }
-       
+        let url = glitterConfig.projectRout
+        let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
+        webView.load(URLRequest(url: url2))
         first=false
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
@@ -176,7 +172,6 @@ extension GlitterActivity: WKScriptMessageHandler {
             break
         }
     }
-    
 }
 
 
@@ -192,9 +187,6 @@ public struct JavaScriptInterFace{
     public init(functionName:String,function:@escaping (_ request: RequestFunction)-> ()) {
         self.name=functionName
         self.function=function
-        let glit=GlitterActivity.getInstance()
-        glit.javaScriptInterFace=glit.javaScriptInterFace.filter({$0.name != functionName})
-        glit.addJavacScriptInterFace(interface: self)
     }
 }
 public class RequestFunction{
@@ -217,3 +209,15 @@ public class RequestFunction{
     }
 }
 
+public class LifeCycle{
+    var viewDidLoad:()->() = {}
+    var viewDidAppear:()->() = {}
+    var viewDidDisappear:()->() = {}
+    var viewWillAppear:()->() = {}
+    var viewWillDisappear:()->() = {}
+}
+
+public class GlitterConfig{
+    public var parameters = "?page=home"
+    public var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
+}
