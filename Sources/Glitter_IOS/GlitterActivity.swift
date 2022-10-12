@@ -38,7 +38,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     }
     open  override func viewDidLoad() {
         super.viewDidLoad()
-       
+        glitterConfig.lifeCycle.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -55,6 +55,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     }
     var first=true
     open override func viewDidAppear(_ animated: Bool) {
+        glitterConfig.lifeCycle.viewDidAppear()
         if(!first){
             return
         }
@@ -107,6 +108,13 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     var javaScriptInterFace=[JavaScriptInterFace]()
     open func addJavacScriptInterFace(interface:JavaScriptInterFace){
         javaScriptInterFace.append(interface)
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        glitterConfig.lifeCycle.viewWillAppear()
+    }
+    public override func viewWillDisappear(_ animated: Bool) {
+        glitterConfig.lifeCycle.viewDidDisappear()
     }
 }
 
@@ -209,15 +217,16 @@ public class RequestFunction{
     }
 }
 
-public class LifeCycle{
-    var viewDidLoad:()->() = {}
-    var viewDidAppear:()->() = {}
-    var viewDidDisappear:()->() = {}
-    var viewWillAppear:()->() = {}
-    var viewWillDisappear:()->() = {}
+open class LifeCycle{
+    open var viewDidLoad:()->() = {}
+    open var viewDidAppear:()->() = {}
+    open var viewDidDisappear:()->() = {}
+    open var viewWillAppear:()->() = {}
+    open var viewWillDisappear:()->() = {}
 }
 
-public class GlitterConfig{
-    public var parameters = "?page=home"
-    public var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
+open class GlitterConfig{
+    open var parameters = "?page=home"
+    open var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
+    open var lifeCycle=LifeCycle()
 }
