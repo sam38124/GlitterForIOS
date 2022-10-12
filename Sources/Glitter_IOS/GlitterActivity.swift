@@ -12,6 +12,19 @@ import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
 open class GlitterActivity: UIViewController,WKUIDelegate {
+    open class LifeCycle{
+        open var viewDidLoad:()->() = {}
+        open var viewDidAppear:()->() = {}
+        open var viewDidDisappear:()->() = {}
+        open var viewWillAppear:()->() = {}
+        open var viewWillDisappear:()->() = {}
+    }
+
+    open class GlitterConfig{
+        open var parameters = "?page=home"
+        open var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
+        open var lifeCycle=LifeCycle()
+    }
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
@@ -217,16 +230,4 @@ public class RequestFunction{
     }
 }
 
-open class LifeCycle{
-    open var viewDidLoad:()->() = {}
-    open var viewDidAppear:()->() = {}
-    open var viewDidDisappear:()->() = {}
-    open var viewWillAppear:()->() = {}
-    open var viewWillDisappear:()->() = {}
-}
 
-open class GlitterConfig{
-    open var parameters = "?page=home"
-    open var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
-    open var lifeCycle=LifeCycle()
-}
