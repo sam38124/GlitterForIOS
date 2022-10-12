@@ -11,7 +11,7 @@ import WebKit
 import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
-open class GlitterActivity: UIViewController,WKUIDelegate {
+open  class GlitterActivity: UIViewController,WKUIDelegate {
     open class LifeCycle{
         open var viewDidLoad:()->() = {}
         open var viewDidAppear:()->() = {}
@@ -27,21 +27,20 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         open var lifeCycle=LifeCycle()
         public init(){}
     }
+    public static func create(glitterConfig:GlitterConfig)->GlitterActivity{
+        let config=GlitterActivity()
+        config.glitterConfig=glitterConfig
+        return config
+    }
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
     /// MyGlitterFunction
     var array=["closeApp","reloadPage","addJsInterFace"]
     
-    var glitterConfig:GlitterConfig
+    var glitterConfig:GlitterConfig = GlitterConfig()
     
-     init(glitterConfig:GlitterConfig = GlitterConfig()) {
-        self.glitterConfig=glitterConfig
-        super.init(nibName: nil, bundle: nil)
-    }
+   
     
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     open func setParameters(_ par:String){
         glitterConfig.parameters=par
