@@ -18,12 +18,14 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
         open var viewDidDisappear:()->() = {}
         open var viewWillAppear:()->() = {}
         open var viewWillDisappear:()->() = {}
+        public init(){}
     }
 
     open class GlitterConfig{
         open var parameters = "?page=home"
         open var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
         open var lifeCycle=LifeCycle()
+        public init(){}
     }
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
@@ -32,7 +34,7 @@ open class GlitterActivity: UIViewController,WKUIDelegate {
     
     var glitterConfig:GlitterConfig
     
-    init(glitterConfig:GlitterConfig = GlitterConfig()) {
+     init(glitterConfig:GlitterConfig = GlitterConfig()) {
         self.glitterConfig=glitterConfig
         super.init(nibName: nil, bundle: nil)
     }
