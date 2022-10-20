@@ -24,9 +24,9 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
 
     open class GlitterConfig{
         open var parameters:String
-        open var projectRout:URL
+        open var projectRout:URL?
         open var lifeCycle:LifeCycle
-        public init(parameters:String = "?page=home",projectRout:URL = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!,lifeCycle:LifeCycle = LifeCycle()){
+        public init(parameters:String = "?page=home",projectRout:URL? = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData"),lifeCycle:LifeCycle = LifeCycle()){
             self.projectRout=projectRout
             self.parameters=parameters
             self.lifeCycle=lifeCycle
