@@ -11,6 +11,7 @@ import WebKit
 import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
+
 open  class GlitterActivity: UIViewController,WKUIDelegate {
     open class LifeCycle{
         open var viewDidLoad:()->() = {}
@@ -22,10 +23,14 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
     }
 
     open class GlitterConfig{
-        open var parameters = "?page=home"
-        open var projectRout = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!
-        open var lifeCycle=LifeCycle()
-        public init(){}
+        open var parameters:String
+        open var projectRout:URL
+        open var lifeCycle:LifeCycle
+        public init(parameters:String = "?page=home",projectRout:URL = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData")!,lifeCycle:LifeCycle = LifeCycle()){
+            self.projectRout=projectRout
+            self.parameters=parameters
+            self.lifeCycle=lifeCycle
+        }
     }
     public static func create(glitterConfig:GlitterConfig)->GlitterActivity{
         let config=GlitterActivity()
