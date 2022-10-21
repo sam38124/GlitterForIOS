@@ -14,12 +14,18 @@ import JzOsHttpExtension
 
 open  class GlitterActivity: UIViewController,WKUIDelegate {
     open class LifeCycle{
-        open var viewDidLoad:()->() = {}
-        open var viewDidAppear:()->() = {}
-        open var viewDidDisappear:()->() = {}
-        open var viewWillAppear:()->() = {}
-        open var viewWillDisappear:()->() = {}
-        public init(){}
+        open var viewDidLoad:()->()
+        open var viewDidAppear:()->()
+        open var viewDidDisappear:()->()
+        open var viewWillAppear:()->()
+        open var viewWillDisappear:()->()
+        public init(viewDidLoad:@escaping (()->())={},viewDidAppear:@escaping (()->())={},viewDidDisappear:@escaping (()->())={},viewWillAppear:@escaping(()->())={},viewWillDisappear: @escaping(()->())={}){
+            self.viewDidLoad=viewDidLoad
+            self.viewDidAppear=viewDidAppear
+            self.viewDidDisappear=viewDidDisappear
+            self.viewWillAppear=viewWillAppear
+            self.viewWillDisappear = viewWillAppear
+        }
     }
 
     open class GlitterConfig{
@@ -42,7 +48,7 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
     /// MyGlitterFunction
     var array=["closeApp","reloadPage","addJsInterFace"]
     
-    var glitterConfig:GlitterConfig = GlitterConfig()
+    open var glitterConfig:GlitterConfig = GlitterConfig()
     
    
     
