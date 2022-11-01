@@ -66,8 +66,6 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         glitterConfig.lifeCycle.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        webView.navigationDelegate = self
-        webView.uiDelegate = self
     }
     
     @objc func keyBoardWillShow(notification: NSNotification) {
@@ -97,6 +95,8 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.allowsInlineMediaPlayback = true
         conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
         webView = WKWebView(frame: view.frame, configuration: conf)  //.zero
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
         webView.scrollView.alwaysBounceVertical = false
         webView.scrollView.bounces = false
         webView.frame=view.bounds
