@@ -12,7 +12,7 @@ import JzOsSqlHelper
 import JzOsHttpExtension
 @available(iOS 11.0, *)
 
-open  class GlitterActivity: UIViewController,WKUIDelegate {
+open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate {
     open class LifeCycle{
         open var viewDidLoad:()->()
         open var viewDidAppear:()->()
@@ -27,7 +27,7 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
             self.viewWillDisappear = viewWillAppear
         }
     }
-
+    
     open class GlitterConfig{
         open var parameters:String
         open var projectRout:URL?
@@ -50,7 +50,7 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
     
     open var glitterConfig:GlitterConfig = GlitterConfig()
     
-   
+    
     
     
     open func setParameters(_ par:String){
@@ -66,6 +66,8 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
         glitterConfig.lifeCycle.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
     }
     
     @objc func keyBoardWillShow(notification: NSNotification) {
@@ -125,6 +127,15 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
         }
         return nil;
     }
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.request.url?.scheme == "tel" {
+            UIApplication.shared.openURL(navigationAction.request.url!)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+        
+    }
     public func webViewDidClose(_ webView: WKWebView) {
         // Popup window is closed, we remove it
         webView.removeFromSuperview()
@@ -146,12 +157,12 @@ open  class GlitterActivity: UIViewController,WKUIDelegate {
 extension GlitterActivity: WKScriptMessageHandler {
     open func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         switch message.name {
-       
+            
         case "closeApp":
             exit(0)
             break
-      
-       
+            
+            
         case "reloadPage":
             let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "appData")!
             webView.loadFileURL(url, allowingReadAccessTo: url)
