@@ -55,17 +55,45 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     
     open func setParameters(_ par:String){
         glitterConfig.parameters=par
-        if(!first){
-            let url = glitterConfig.projectRout
-            let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
-            webView.load(URLRequest(url: url2))
-        }
+        let url = glitterConfig.projectRout
+        let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
+        webView.load(URLRequest(url: url2))
     }
     open  override func viewDidLoad() {
         super.viewDidLoad()
-        glitterConfig.lifeCycle.viewDidLoad()
+      
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        let conf = WKWebViewConfiguration()
+        conf.userContentController = WKUserContentController()
+        for a in array{
+            conf.userContentController.add(self, name: a)
+        }
+        GlitterFunction.create(glitterAct: self)
+        conf.preferences.javaScriptEnabled = true
+        conf.selectionGranularity = WKSelectionGranularity.character
+        conf.allowsInlineMediaPlayback = true
+        conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
+        webView = WKWebView(frame: view.frame, configuration: conf)  //.zero
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        webView.scrollView.alwaysBounceVertical = false
+        webView.scrollView.bounces = false
+        webView.frame=view.bounds
+        //        webView.frame=container.frame
+        webView.customUserAgent = "iosGlitter"
+        webView.uiDelegate = self
+        //解決全屏播放視訊 狀態列閃現導致的底部白條  never:表示不計算內邊距
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        view.addSubview(webView)
+        var websiteDataTypes = WKWebsiteDataStore.allWebsiteDataTypes();
+        // Date from
+        var dateFrom = Date(timeIntervalSince1970: 0);
+        // Execute
+        let url = glitterConfig.projectRout
+        let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
+        webView.load(URLRequest(url: url2))
+        glitterConfig.lifeCycle.viewDidLoad()
     }
     
     @objc func keyBoardWillShow(notification: NSNotification) {
@@ -78,9 +106,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         view.removeFromSuperview()
         superView?.addSubview(view)
     }
-    var first=true
     open override func viewDidAppear(_ animated: Bool) {
         glitterConfig.lifeCycle.viewDidAppear()
+        webView.frame=view.bounds
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // A nil targetFrame means a new window (from Apple's doc)
@@ -148,38 +176,6 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     }
     
     public override func viewWillAppear(_ animated: Bool) {
-        if(!first){
-            let conf = WKWebViewConfiguration()
-            conf.userContentController = WKUserContentController()
-            for a in array{
-                conf.userContentController.add(self, name: a)
-            }
-            GlitterFunction.create(glitterAct: self)
-            conf.preferences.javaScriptEnabled = true
-            conf.selectionGranularity = WKSelectionGranularity.character
-            conf.allowsInlineMediaPlayback = true
-            conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
-            webView = WKWebView(frame: view.frame, configuration: conf)  //.zero
-            webView.navigationDelegate = self
-            webView.uiDelegate = self
-            webView.scrollView.alwaysBounceVertical = false
-            webView.scrollView.bounces = false
-            webView.frame=view.bounds
-            //        webView.frame=container.frame
-            webView.customUserAgent = "iosGlitter"
-            webView.uiDelegate = self
-            //解決全屏播放視訊 狀態列閃現導致的底部白條  never:表示不計算內邊距
-            webView.scrollView.contentInsetAdjustmentBehavior = .never
-            view.addSubview(webView)
-            var websiteDataTypes = WKWebsiteDataStore.allWebsiteDataTypes();
-            // Date from
-            var dateFrom = Date(timeIntervalSince1970: 0);
-            // Execute
-            let url = glitterConfig.projectRout
-            let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
-            webView.load(URLRequest(url: url2))
-            first=false
-        }
         glitterConfig.lifeCycle.viewWillAppear()
     }
     public override func viewWillDisappear(_ animated: Bool) {
