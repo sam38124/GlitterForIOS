@@ -45,6 +45,7 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     }
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView!
+    public static var sharedInterFace=[JavaScriptInterFace]()
     /// MyGlitterFunction
     var array=["closeApp","reloadPage","addJsInterFace"]
     
@@ -61,13 +62,15 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     }
     open  override func viewDidLoad() {
         super.viewDidLoad()
-      
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         let conf = WKWebViewConfiguration()
         conf.userContentController = WKUserContentController()
         for a in array{
             conf.userContentController.add(self, name: a)
+        }
+        for e in GlitterActivity.sharedInterFace{
+            javaScriptInterFace.append(e)
         }
         GlitterFunction.create(glitterAct: self)
         conf.preferences.javaScriptEnabled = true
@@ -132,35 +135,35 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         
     }
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-
+        
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
-
+        
         alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action) in
             completionHandler()
         }))
-
+        
         self.present(alertController, animated: true, completion: nil)
     }
-
+    
     public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-
+        
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
-
+        
         alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action) in
             completionHandler(true)
         }))
-
+        
         alertController.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action) in
             completionHandler(false)
         }))
-
+        
         self.present(alertController, animated: true, completion: nil)
     }
-
+    
     public func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
-
+        
         let alertController = UIAlertController(title: nil, message: prompt, preferredStyle: .alert)
-
+        
         alertController.addTextField { (textField) in
             textField.text = defaultText
         }
