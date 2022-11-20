@@ -222,7 +222,7 @@ extension GlitterActivity: WKScriptMessageHandler {
             var receiveValue=json!["data"]! as? Dictionary<String,AnyObject>
             if(receiveValue == nil){receiveValue=Dictionary<String,AnyObject>()}
             let cFunction=javaScriptInterFace.filter({$0.name == functionName})
-            let requestFunction = RequestFunction(receiveValue: receiveValue!)
+            let requestFunction = RequestFunction(receiveValue: receiveValue!,glitterAct: self)
             requestFunction.setCallback(finishv: {
                 DispatchQueue.main.async {
                     self.webView.evaluateJavaScript("""
@@ -268,9 +268,11 @@ public struct JavaScriptInterFace{
 public class RequestFunction{
     public let receiveValue: Dictionary<String,Any>
     public var responseValue: Dictionary<String,Any>=Dictionary<String,Any>()
+    public var glitterAct:GlitterActivity
     private var finishv={}
     private var callbackv={}
-    public init(receiveValue:Dictionary<String,Any>){
+    public init(receiveValue:Dictionary<String,Any>,glitterAct:GlitterActivity){
+        self.glitterAct=glitterAct
         self.receiveValue=receiveValue
     }
     public func finish(){
