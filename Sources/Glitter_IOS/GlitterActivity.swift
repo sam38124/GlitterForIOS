@@ -44,7 +44,7 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         return config
     }
     let encoder: JSONEncoder = JSONEncoder()
-    open var webView: WKWebView!
+    open var webView: WKWebView?
     public static var sharedInterFace=[JavaScriptInterFace]()
     /// MyGlitterFunction
     var array=["closeApp","reloadPage","addJsInterFace"]
@@ -58,6 +58,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         glitterConfig.parameters=par
         let url = glitterConfig.projectRout
         let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
+        guard let webView = webView else{
+            return
+        }
         webView.load(URLRequest(url: url2))
     }
     open  override func viewDidLoad() {
@@ -78,6 +81,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.allowsInlineMediaPlayback = true
         conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
         webView = WKWebView(frame: view.frame, configuration: conf)  //.zero
+        guard let webView = webView else{
+            return
+        }
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.scrollView.alwaysBounceVertical = false
@@ -111,6 +117,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     }
     open override func viewDidAppear(_ animated: Bool) {
         glitterConfig.lifeCycle.viewDidAppear()
+        guard let webView = webView else{
+            return
+        }
         webView.frame=view.bounds
     }
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
@@ -188,6 +197,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
 
 extension GlitterActivity: WKScriptMessageHandler {
     open func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let webView = webView else{
+            return
+        }
         switch message.name {
             
         case "closeApp":
@@ -225,14 +237,14 @@ extension GlitterActivity: WKScriptMessageHandler {
             let requestFunction = RequestFunction(receiveValue: receiveValue!,glitterAct: self)
             requestFunction.setCallback(finishv: {
                 DispatchQueue.main.async {
-                    self.webView.evaluateJavaScript("""
+                    webView.evaluateJavaScript("""
                     glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""))
                     glitter.callBackList.delete(\(callbackID));
                     """)
                 }
             }, callbackv: {
                 DispatchQueue.main.async {
-                    self.webView.evaluateJavaScript("""
+                    webView.evaluateJavaScript("""
                     glitter.callBackList.get(\(callbackID))(\(ConversionJson.shared.DictionaryToJson(parameters:requestFunction.responseValue) ?? ""));
                     """)
                 }
