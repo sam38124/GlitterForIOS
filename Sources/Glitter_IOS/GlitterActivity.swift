@@ -43,6 +43,7 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         config.glitterConfig=glitterConfig
         return config
     }
+
     let encoder: JSONEncoder = JSONEncoder()
     open var webView: WKWebView?
     public static var sharedInterFace=[JavaScriptInterFace]()
@@ -63,10 +64,8 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         }
         webView.load(URLRequest(url: url2))
     }
-    open  override func viewDidLoad() {
-        super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    
+    open func initWkWebView() -> GlitterActivity{
         let conf = WKWebViewConfiguration()
         conf.userContentController = WKUserContentController()
         for a in array{
@@ -80,28 +79,35 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.selectionGranularity = WKSelectionGranularity.character
         conf.allowsInlineMediaPlayback = true
         conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
-        webView = WKWebView(frame: view.frame, configuration: conf)  //.zero
+        webView = WKWebView(frame: .zero, configuration: conf)  //.zero
         guard let webView = webView else{
-            return
+            return self
         }
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.scrollView.alwaysBounceVertical = false
         webView.scrollView.bounces = false
-        webView.frame=view.bounds
         //        webView.frame=container.frame
         webView.customUserAgent = "iosGlitter"
         webView.uiDelegate = self
         //解決全屏播放視訊 狀態列閃現導致的底部白條  never:表示不計算內邊距
         webView.scrollView.contentInsetAdjustmentBehavior = .never
-        view.addSubview(webView)
-        var websiteDataTypes = WKWebsiteDataStore.allWebsiteDataTypes();
-        // Date from
-        var dateFrom = Date(timeIntervalSince1970: 0);
-        // Execute
         let url = glitterConfig.projectRout
         let url2 = URL(string: glitterConfig.parameters, relativeTo: url)!
         webView.load(URLRequest(url: url2))
+        return self
+    }
+    
+    open  override func viewDidLoad() {
+        super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        initWkWebView()
+        guard let webView = webView else{
+            return
+        }
+        webView.frame=view.bounds
+        view.addSubview(webView)
         glitterConfig.lifeCycle.viewDidLoad()
     }
     
