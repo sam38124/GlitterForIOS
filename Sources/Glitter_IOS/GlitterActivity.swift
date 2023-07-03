@@ -102,7 +102,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        initWkWebView()
+        if(webView == nil){
+            initWkWebView()
+        }
         guard let webView = webView else{
             return
         }
