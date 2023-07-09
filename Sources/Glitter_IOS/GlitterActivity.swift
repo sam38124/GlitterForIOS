@@ -119,9 +119,6 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     
     @objc func keyBoardWillHide(notification: NSNotification) {
         print("keyBoardWillHide")
-        let superView=view.superview
-        view.removeFromSuperview()
-        superView?.addSubview(view)
     }
     open override func viewDidAppear(_ animated: Bool) {
         glitterConfig.lifeCycle.viewDidAppear()
