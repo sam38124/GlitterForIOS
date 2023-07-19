@@ -80,6 +80,11 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.allowsInlineMediaPlayback = true
         conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
         webView = WKWebView(frame: .zero, configuration: conf)  //.zero
+        if #available(iOS 16.4, *) {
+            webView!.isInspectable = true
+        } else {
+            // Fallback on earlier versions
+        }
         guard let webView = webView else{
             return self
         }
