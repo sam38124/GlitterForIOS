@@ -40,6 +40,29 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
             self.resourceHook=resourceHook
         }
     }
+    
+    open class CustomURLSchemeHandler: NSObject, WKURLSchemeHandler {
+        public func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
+            // 在这里处理文件资源请求
+            print("fileRequest:\(urlSchemeTask.request.url!)")
+//            if let url = urlSchemeTask.request.url, let host = url.host {
+//                if host == "example.com" && url.path == "/path_to_file.txt" {
+//                    // 根据需要执行自定义逻辑
+//                    // 这里可以加载本地资源、返回假数据等
+//                    let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "text/plain"])!
+//                    let data = "This is a custom file response".data(using: .utf8)!
+//                    urlSchemeTask.didReceive(response)
+//                    urlSchemeTask.didReceive(data)
+//                    urlSchemeTask.didFinish()
+//                    return
+//                }
+//            }
+        }
+        
+        public func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {
+            // 在这里进行资源请求的结束处理
+        }
+    }
     public static func create(glitterConfig:GlitterConfig)->GlitterActivity{
         let config=GlitterActivity()
         config.glitterConfig=glitterConfig
@@ -78,6 +101,8 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.selectionGranularity = WKSelectionGranularity.character
         conf.allowsInlineMediaPlayback = true
         conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
+        let schemeHandler = CustomURLSchemeHandler()
+        conf.setURLSchemeHandler(schemeHandler, forURLScheme: "file")
         webView = WKWebView(frame: .zero, configuration: conf)  //.zero
         if #available(iOS 16.4, *) {
             webView!.isInspectable = true
@@ -154,6 +179,17 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
                 decisionHandler(.allow)
             }
         }
+    }
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if let response = navigationResponse.response as? HTTPURLResponse,
+           let url = navigationResponse.response.url,
+           let mimeType = response.mimeType {
+            // 在这里检查资源请求并进行处理
+            print("Resource requested - URL: \(url), MIME Type: \(mimeType)")
+        }
+
+        // 允许请求继续加载
+        decisionHandler(.allow)
     }
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         
