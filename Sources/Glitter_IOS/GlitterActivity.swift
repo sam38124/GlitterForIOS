@@ -32,10 +32,12 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         open var parameters:String
         open var projectRout:URL?
         open var lifeCycle:LifeCycle
-        public init(parameters:String = "?page=home",projectRout:URL? = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData"),lifeCycle:LifeCycle = LifeCycle()){
+        open var resourceHook:((_ webView: WKWebView, _ navigationAction: WKNavigationAction, _ decisionHandler: @escaping (WKNavigationActionPolicy) -> Void)->Void)?
+        public init(parameters:String = "?page=home",projectRout:URL? = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "appData"),lifeCycle:LifeCycle = LifeCycle(),resourceHook:((_ webView: WKWebView, _ navigationAction: WKNavigationAction, _ decisionHandler: @escaping (WKNavigationActionPolicy) -> Void)->Void)? = nil){
             self.projectRout=projectRout
             self.parameters=parameters
             self.lifeCycle=lifeCycle
+            self.resourceHook=resourceHook
         }
     }
     public static func create(glitterConfig:GlitterConfig)->GlitterActivity{
@@ -51,9 +53,6 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     var array=["closeApp","reloadPage","addJsInterFace"]
     
     open var glitterConfig:GlitterConfig = GlitterConfig()
-    
-    
-    
     
     open func setParameters(_ par:String){
         glitterConfig.parameters=par
@@ -145,13 +144,16 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         return nil;
     }
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if navigationAction.request.url?.scheme == "tel" {
-            UIApplication.shared.openURL(navigationAction.request.url!)
-            decisionHandler(.cancel)
-        } else {
-            decisionHandler(.allow)
+        if((glitterConfig.resourceHook) != nil){
+            glitterConfig.resourceHook!(webView,navigationAction,decisionHandler)
+        }else{
+            if navigationAction.request.url?.scheme == "tel" {
+                UIApplication.shared.openURL(navigationAction.request.url!)
+                decisionHandler(.cancel)
+            } else {
+                decisionHandler(.allow)
+            }
         }
-        
     }
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         
