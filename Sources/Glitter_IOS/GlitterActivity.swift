@@ -194,7 +194,7 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         decisionHandler(.allow)
     }
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-        
+        print("message:\(message)")
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
         
         alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action) in
@@ -205,7 +205,7 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
     }
     
     public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-        
+        print("message:\(message)")
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
         
         alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action) in
