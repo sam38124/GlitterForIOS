@@ -100,7 +100,9 @@ open  class GlitterActivity: UIViewController,WKNavigationDelegate, WKUIDelegate
         conf.preferences.javaScriptEnabled = true
         conf.selectionGranularity = WKSelectionGranularity.character
         conf.allowsInlineMediaPlayback = true
-        conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
+        //conf.setValue(true, forKey: "_allowUniversalAccessFromFileURLs")
+        conf.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
+        conf.preferences.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
         let schemeHandler = CustomURLSchemeHandler()
         conf.setURLSchemeHandler(schemeHandler, forURLScheme: "img")
         conf.setURLSchemeHandler(schemeHandler, forURLScheme: "video")
